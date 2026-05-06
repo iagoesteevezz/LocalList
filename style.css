@@ -1,0 +1,103 @@
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+}
+
+body { 
+    background-color: #f4f4f9; 
+    color: #333; 
+    padding-bottom: 50px; 
+}
+
+header { 
+    background-color: #008000;
+    color: white; 
+    padding: 20px; 
+    text-align: center; 
+    position: sticky;
+    top: 0; 
+    z-index: 100; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+}
+
+main { 
+    padding: 15px; 
+    max-width: 600px;
+    margin: 0 auto; 
+}
+
+.pasillo { 
+    background: white; 
+    border-radius: 10px; 
+    margin-bottom: 20px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+    overflow: hidden; 
+}
+
+.pasillo-header { 
+    background-color: #e8f5e9; 
+    padding: 12px 15px; 
+    font-weight: bold; 
+    border-bottom: 1px solid #c8e6c9; 
+    color: #2e7d32; 
+}
+
+.producto { 
+    display: flex; 
+    align-items: center; 
+    padding: 18px 15px; 
+    border-bottom: 1px solid #eee; 
+    cursor: pointer; 
+    transition: background 0.2s; 
+}
+
+.producto:last-child { 
+    border-bottom: none; 
+}
+
+.producto.comprado { 
+    text-decoration: line-through; 
+    color: #999; 
+    background-color: #fafafa; 
+}
+
+.checkbox { 
+    width: 24px; 
+    height: 24px; 
+    border: 2px solid #008000; 
+    border-radius: 5px; 
+    margin-right: 15px; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+}
+
+.producto.comprado .checkbox { 
+    background-color: #008000; 
+}
+
+.producto.comprado .checkbox::after { 
+    content: '✓'; 
+    color: white; 
+    font-weight: bold;
+}
+
+
+#mapa-3d-container {
+    width: 100%;
+    height: 30vh;
+    background-color: #eee; 
+    position: sticky;
+    top: 70px;
+    z-index: 90;
+    overflow: hidden; 
+    border-bottom: 2px solid #ddd;
+}
+
+#mapa-3d-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
