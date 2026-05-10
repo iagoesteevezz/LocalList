@@ -15,7 +15,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const docRef = doc(db, "supermercados", "mercadona_cruce");
 
-// 1. LOS 7 PASILLOS REALES DE TU NOTA
+// 1. LOS 7 PASILLOS 
 const ESTRUCTURA_PASILLOS = [
     { id: 1, nombre: "1. Frutas y congelados" },
     { id: 2, nombre: "2. Carnes y embutidos" },
@@ -29,7 +29,7 @@ const ESTRUCTURA_PASILLOS = [
 let datosFirebase = {}; 
 const containerHTML = document.getElementById('supermercado-container');
 
-// 2. FUNCIÓN PARA AÑADIR PRODUCTO (Lógica de Firebase)
+// 2. FUNCIÓN PARA AÑADIR PRODUCTO
 async function agregarProducto(idPasillo, nombreProducto) {
     if (!nombreProducto.trim()) return;
     const campo = `productos_p${idPasillo}`;
@@ -46,6 +46,18 @@ async function borrarProducto(idPasillo, nombreProducto) {
 async function toggleTachado(nombreProducto) {
     const nuevoEstado = !datosFirebase[`tachado_${nombreProducto}`];
     await setDoc(docRef, { [`tachado_${nombreProducto}`]: nuevoEstado }, { merge: true });
+}
+
+// 5. Sumar o restar cantidad
+async function cambiarCantidad(nombreProducto, incremento) {
+    // Si no hay cantidad guardada, asumimos que es 1
+    const cantidadActual = datosFirebase[`cantidad_${nombreProducto}`] || 1;
+    let nuevaCantidad = cantidadActual + incremento;
+    
+    // Evitamos que la cantidad baje de 1 (si no lo quieres, lo borras con la X)
+    if (nuevaCantidad < 1) nuevaCantidad = 1;
+
+    await setDoc(docRef, { [`cantidad_${nombreProducto}`]: nuevaCantidad }, { merge: true });
 }
 
 // 5. RENDERIZAR LA LISTA DINÁMICA
@@ -84,17 +96,37 @@ function renderizarLista() {
             divProd.className = 'producto';
             if (datosFirebase[`tachado_${prod}`]) divProd.classList.add('comprado');
 
+            // Leemos la cantidad de Firebase (si no existe, es 1)
+            const cantidad = datosFirebase[`cantidad_${prod}`] || 1;
+
             divProd.innerHTML = `
                 <div class="checkbox"></div>
-                <span style="flex:1">${prod}</span>
+                <span class="nombre-prod" style="flex:1">${prod}</span>
+                
+                <div class="contador-cantidad">
+                    <button class="btn-restar">-</button>
+                    <span class="numero-cant">${cantidad}</span>
+                    <button class="btn-sumar">+</button>
+                </div>
+
                 <span class="btn-borrar">×</span>
             `;
 
-            // Clic en el nombre/check para tachar
-            divProd.querySelector('span').onclick = () => toggleTachado(prod);
+            // Clic para tachar
+            divProd.querySelector('.nombre-prod').onclick = () => toggleTachado(prod);
             divProd.querySelector('.checkbox').onclick = () => toggleTachado(prod);
             
-            // Clic en la X para eliminar del inventario (Editar pasillo)
+            // Clics para sumar y restar
+            divProd.querySelector('.btn-restar').onclick = (e) => {
+                e.stopPropagation();
+                cambiarCantidad(prod, -1);
+            };
+            divProd.querySelector('.btn-sumar').onclick = (e) => {
+                e.stopPropagation();
+                cambiarCantidad(prod, 1);
+            };
+
+            // Clic para borrar definitivamente
             divProd.querySelector('.btn-borrar').onclick = (e) => {
                 e.stopPropagation();
                 borrarProducto(pasillo.id, prod);
@@ -112,15 +144,13 @@ onSnapshot(docRef, (snapshot) => {
     if (snapshot.exists()) {
         datosFirebase = snapshot.data();
         renderizarLista();
-        actualizarColores3D(); // Función que crearemos abajo
+        actualizarColores3D();
     } else {
         setDoc(docRef, {});
     }
 });
 
-// ==========================================
 // 7. MAPA 3D CON INTERACTIVIDAD
-// ==========================================
 let scene, camera, renderer, raycaster, mouse;
 const pasillos3D = [];
 
@@ -145,14 +175,12 @@ function init3DMap() {
     scene.add(light);
 
     // DIBUJAR LOS PASILLOS
-    // Ahora son estrechos de ancho (3), bajitos (0.5) y largos en profundidad (16)
     const geometry = new THREE.BoxGeometry(3, 0.5, 16); 
     
     ESTRUCTURA_PASILLOS.forEach((p, i) => {
         const material = new THREE.MeshLambertMaterial({ color: 0xaaaaaa });
         const mesh = new THREE.Mesh(geometry, material);
         
-        // ¡EL CAMBIO CLAVE!: Distribuidos de Izquierda a Derecha (Eje X)
         // Empezamos en -12 y sumamos 4 por cada pasillo para dejar un hueco entre ellos
         mesh.position.x = -15 + (i * 5); 
         mesh.position.z = 0; // Todos a la misma altura vertical
@@ -163,7 +191,7 @@ function init3DMap() {
         pasillos3D.push(mesh);
     });
 
-    // --- CLIC EN EL MAPA 3D PARA HACER SCROLL ---
+    // CLIC EN EL MAPA 3D PARA HACER SCROLL
     raycaster = new THREE.Raycaster();
     mouse = new THREE.Vector2();
 
@@ -202,9 +230,7 @@ function actualizarColores3D() {
 
 init3DMap();
 
-// ==========================================
-// 8. POPUP DE AYUDA (Inyectado sin tocar HTML)
-// ==========================================
+// 8. POPUP DE AYUDA 
 function crearPopupAyuda() {
     // 1. Inyectar el botón en el header existente
     const header = document.querySelector('header');
