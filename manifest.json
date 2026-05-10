@@ -1,0 +1,21 @@
+{
+  "name": "LocaLisT",
+  "short_name": "LocaLisT",
+  "description": "Lista de la compra compartida",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1a4314",
+  "theme_color": "#1a4314",
+  "icons": [
+    {
+      "src": "LocaList Just Logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "LocaList Just Logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
