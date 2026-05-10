@@ -473,3 +473,13 @@ body.dark-mode .opcion-menu:hover {
 .click-animado .bloque-pasillo {
     animation: pulsarBoton 0.3s ease-out;
 }
+
+@media (max-width: 600px) {
+    #mapa-3d-container {
+        top: 110px; 
+    }
+    
+    .pasillo {
+        scroll-margin-top: 380px; 
+    }
+}
