@@ -15,13 +15,13 @@ const db = getFirestore(app);
 const docRef = doc(db, "supermercados", "mercadona_cruce");
 
 const ESTRUCTURA_PASILLOS = [
-    { id: 1, nombre: "1. Frutas y congelados" },
-    { id: 2, nombre: "2. Carnes y embutidos" },
-    { id: 3, nombre: "3. Salsas y pasta" },
-    { id: 4, nombre: "4. Lácteos y bebidas" },
-    { id: 5, nombre: "5. Precocinados y papas" },
-    { id: 6, nombre: "6. Desayunos y cuidado" },
-    { id: 7, nombre: "7. Pan, galletas, café y limpieza" }
+    { id: 1, nombre: "1. Frutas /verduras / congelados" },
+    { id: 2, nombre: "2. Carnes / embutidos / Arroz / Latas" },
+    { id: 3, nombre: "3. Salsas / Pasta / Frutos secos " },
+    { id: 4, nombre: "4. Nevera / bebidas" },
+    { id: 5, nombre: "5. Precocinados / papas" },
+    { id: 6, nombre: "6. Desayunos / Leche / Cuidado" },
+    { id: 7, nombre: "7. Pan / galletas / café / limpieza" }
 ];
 
 let datosFirebase = {}; 
