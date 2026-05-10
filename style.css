@@ -483,3 +483,26 @@ body.dark-mode .opcion-menu:hover {
         scroll-margin-top: 400px; 
     }
 }
+
+/* ESTILOS DE LA CABECERA Y LOGO */
+.logo-header {
+    height: 45px;
+    width: auto;
+    margin-bottom: 8px;
+    
+    background-color: rgba(255, 255, 255, 0.95); 
+    padding: 5px 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.titulo-super {
+    font-size: 1.3rem;
+    margin: 0;
+    font-weight: bold;
+    color: white; 
+}
+
+body.dark-mode .logo-header {
+    background-color: rgba(255, 255, 255, 0.8);
+}
