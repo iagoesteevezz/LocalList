@@ -127,7 +127,6 @@ const pasillos3D = [];
 function init3DMap() {
     const container = document.getElementById('mapa-3d-container');
     
-    // Limpiamos el contenedor por si Firebase recarga la función
     container.innerHTML = ''; 
     pasillos3D.length = 0; 
 
@@ -135,8 +134,7 @@ function init3DMap() {
     scene.background = new THREE.Color(0xf4f4f9);
     
     camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 1000);
-    // VISTA AÉREA: Colocamos la cámara arriba (Eje Y = 50) mirando hacia abajo (0,0,0)
-    camera.position.set(0, 50, 0); 
+    camera.position.set(0, 45, 0); // Cámara arriba mirando hacia abajo
     camera.lookAt(0, 0, 0);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -146,17 +144,18 @@ function init3DMap() {
     const light = new THREE.AmbientLight(0xffffff, 0.9);
     scene.add(light);
 
-    // DIBUJAR LOS PASILLOS (Aplastados y anchos como el suelo)
-    // Ancho: 18, Alto (grosor del suelo): 0.5, Profundidad: 3.5
-    const geometry = new THREE.BoxGeometry(18, 0.5, 3.5); 
+    // DIBUJAR LOS PASILLOS
+    // Ahora son estrechos de ancho (3), bajitos (0.5) y largos en profundidad (16)
+    const geometry = new THREE.BoxGeometry(3, 0.5, 16); 
     
     ESTRUCTURA_PASILLOS.forEach((p, i) => {
         const material = new THREE.MeshLambertMaterial({ color: 0xaaaaaa });
         const mesh = new THREE.Mesh(geometry, material);
         
-        // Distribuidos de arriba a abajo en la pantalla (Eje Z)
-        mesh.position.z = -15 + (i * 5); 
-        mesh.position.x = 0; // Centrados horizontalmente
+        // ¡EL CAMBIO CLAVE!: Distribuidos de Izquierda a Derecha (Eje X)
+        // Empezamos en -12 y sumamos 4 por cada pasillo para dejar un hueco entre ellos
+        mesh.position.x = -15 + (i * 5); 
+        mesh.position.z = 0; // Todos a la misma altura vertical
         mesh.position.y = 0; // Pegados al suelo
         
         mesh.userData.id = p.id;
