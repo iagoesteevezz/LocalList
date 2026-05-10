@@ -478,16 +478,6 @@ body.dark-mode .alerta-texto {
     animation: pulsarBoton 0.3s ease-out;
 }
 
-@media (max-width: 600px) {
-    #mapa-3d-container {
-        top: 135px; 
-    }
-    
-    .pasillo {
-        scroll-margin-top: 400px; 
-    }
-}
-
 /* ESTILOS DE LA CABECERA Y LOGO */
 .logo-header {
     height: 45px;
@@ -509,4 +499,15 @@ body.dark-mode .alerta-texto {
 
 body.dark-mode .logo-header {
     background-color: rgba(255, 255, 255, 0.8);
+}
+
+@media (max-width: 768px) {
+    #mapa-3d-container {
+        top: 115px; 
+        z-index: 100; 
+    }
+    
+    .pasillo {
+        scroll-margin-top: 350px; 
+    }
 }
