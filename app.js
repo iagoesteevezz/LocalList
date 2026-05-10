@@ -27,10 +27,37 @@ const ESTRUCTURA_PASILLOS = [
 let datosFirebase = {}; 
 const containerHTML = document.getElementById('supermercado-container');
 
+// 2. FUNCIÓN PARA AÑADIR PRODUCTO 
 async function agregarProducto(idPasillo, nombreProducto) {
-    if (!nombreProducto.trim()) return;
+    const nombreLimpio = nombreProducto.trim();
+    if (!nombreLimpio) return;
+
+    // 1. Buscamos si el producto ya existe en algún pasillo
+    let pasilloDondeExiste = null;
+
+    for (const pasillo of ESTRUCTURA_PASILLOS) {
+        const productosEnPasillo = datosFirebase[`productos_p${pasillo.id}`] || [];
+        
+        // Comprobamos si existe
+        const existe = productosEnPasillo.some(
+            prod => prod.toLowerCase() === nombreLimpio.toLowerCase()
+        );
+
+        if (existe) {
+            pasilloDondeExiste = pasillo.nombre;
+            break; // Si lo encuentra, paramos de buscar
+        }
+    }
+
+    // 2. Si ya existe, lanzamos un aviso y CANCELAMOS el guardado
+    if (pasilloDondeExiste) {
+        mostrarAlertaDuplicado(nombreLimpio, pasilloDondeExiste);
+        return; 
+    }
+
+    // 3. Si no existe en ningún lado, lo guardamos en Firebase con normalidad
     const campo = `productos_p${idPasillo}`;
-    await setDoc(docRef, { [campo]: arrayUnion(nombreProducto) }, { merge: true });
+    await setDoc(docRef, { [campo]: arrayUnion(nombreLimpio) }, { merge: true });
 }
 
 async function borrarProducto(idPasillo, nombreProducto) {
@@ -238,6 +265,37 @@ function crearPopupAyuda() {
             if (e.target === modal) modal.className = 'popup-oculto'; 
         };
     }
+}
+
+// 9. POPUP DE ALERTA (Duplicados)
+function crearPopupAlerta() {
+    const modal = document.createElement('div');
+    modal.id = 'popup-alerta';
+    modal.className = 'popup-oculto';
+
+    modal.innerHTML = `
+        <div class="popup-contenido">
+            <div class="alerta-icono">⚠️</div>
+            <div class="alerta-texto" id="alerta-mensaje"></div>
+            <button class="btn-entendido" id="btn-entendido">Entendido</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById('btn-entendido').onclick = () => modal.className = 'popup-oculto';
+    
+    window.addEventListener('click', (e) => { 
+        if (e.target === modal) modal.className = 'popup-oculto'; 
+    });
+}
+crearPopupAlerta();
+
+function mostrarAlertaDuplicado(producto, pasillo) {
+    const modal = document.getElementById('popup-alerta');
+    const mensaje = document.getElementById('alerta-mensaje');
+    
+    mensaje.innerHTML = `¡Espera!<br><br>El producto <strong>"${producto}"</strong> ya está en la lista.<br><br>Lo tienes en:<br> <strong>${pasillo}</strong>`;
+    modal.className = 'popup-visible';
 }
 
 crearPopupAyuda();
