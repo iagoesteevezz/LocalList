@@ -29,7 +29,7 @@ main {
     margin: 0 auto; 
 }
 
-/* PASILLO: Con el freno para el mapa 3D */
+/* PASILLO: Con el freno para el scroll */
 .pasillo { 
     background: white; 
     border-radius: 10px; 
@@ -104,26 +104,80 @@ main {
     font-weight: bold;
 }
 
-/* MAPA 3D: Fijo justo debajo del header */
 #mapa-3d-container {
     width: 100%;
-    height: 30vh;
+    height: 220px;
     background-color: #eee; 
     position: sticky;
-    top: 60px;
+    top: 95px;
     z-index: 90;
-    overflow: hidden; 
+    overflow-x: auto; 
+    overflow-y: hidden; 
     border-bottom: 2px solid #ddd;
     box-shadow: 0 4px 6px -4px rgba(0,0,0,0.2);
+    
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 25px;
+    gap: 15px; 
 }
 
-#mapa-3d-container canvas {
-    width: 100% !important;
-    height: 100% !important;
-    display: block;
+.pasillo-3d-wrapper {
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    width: 40px; 
+    cursor: pointer;
+    flex-shrink: 0; 
 }
 
-/* Estilos para el editor de productos */
+.bloque-pasillo {
+    width: 30px;
+    height: 110px; 
+    background-color: #aaaaaa;
+    border-radius: 4px;
+    position: relative; 
+    margin-bottom: 8px; 
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    transition: background-color 0.3s ease;
+}
+
+.numero-pasillo {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #008000;
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    border: 2px solid white;
+}
+
+.iconos-container {
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    gap: 4px; 
+}
+
+.icono-3d {
+    font-size: 1.1rem; 
+    line-height: 1; 
+}
+
+.pasillo-3d-wrapper.con-pendientes .bloque-pasillo {
+    background-color: #008000; 
+}
+
+
 .editor-pasillo {
     display: flex;
     padding: 10px 15px;
@@ -168,7 +222,7 @@ main {
     cursor: pointer;
 }
 
-/* EL POPUP DE AYUDA */
+/* POPUPS */
 .popup-oculto { 
     display: none; 
 }
@@ -219,7 +273,7 @@ main {
     cursor: pointer;
 }
 
-/* ESTILOS PARA EL CONTADOR DE CANTIDAD */
+/* CONTADOR DE CANTIDAD */
 .contador-cantidad {
     display: flex;
     align-items: center;
@@ -251,7 +305,7 @@ main {
     color: #333;
 }
 
-/* POPUP DE ALERTA */
+/* POPUP DE ALERTA ESPECÍFICO */
 #popup-alerta {
     z-index: 3000; 
 }

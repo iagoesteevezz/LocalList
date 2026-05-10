@@ -2,12 +2,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/fireba
 import { getFirestore, doc, onSnapshot, setDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDPb6Ira09z5sUQ4AtD6uyibVKQsQshGgc",
-  authDomain: "locallist-18b64.firebaseapp.com",
-  projectId: "locallist-18b64",
-  storageBucket: "locallist-18b64.firebasestorage.app",
-  messagingSenderId: "951724832714",
-  appId: "1:951724832714:web:052af9aa9bfcf3c054c133"
+    apiKey: "AIzaSyDPb6Ira09z5sUQ4AtD6uyibVKQsQshGgc",
+    authDomain: "locallist-18b64.firebaseapp.com",
+    projectId: "locallist-18b64",
+    storageBucket: "locallist-18b64.firebasestorage.app",
+    messagingSenderId: "951724832714",
+    appId: "1:951724832714:web:052af9aa9bfcf3c054c133"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -15,13 +15,13 @@ const db = getFirestore(app);
 const docRef = doc(db, "supermercados", "mercadona_cruce");
 
 const ESTRUCTURA_PASILLOS = [
-    { id: 1, nombre: "1. Frutas /verduras / congelados" },
-    { id: 2, nombre: "2. Carnes / embutidos / Arroz / Latas" },
-    { id: 3, nombre: "3. Salsas / Pasta / Frutos secos " },
-    { id: 4, nombre: "4. Nevera / bebidas" },
-    { id: 5, nombre: "5. Precocinados / papas" },
-    { id: 6, nombre: "6. Cereales / Leche / Cuidado" },
-    { id: 7, nombre: "7. Pan / galletas / café / limpieza" }
+    { id: 1, nombre: "1. Frutas /verduras / congelados", iconos: ["🍎", "❄️"] },
+    { id: 2, nombre: "2. Carnes / embutidos / Arroz / Latas", iconos: ["🥩", "🥓"] },
+    { id: 3, nombre: "3. Salsas / Pasta / Frutos secos ", iconos: ["🍝", "🍅"] },
+    { id: 4, nombre: "4. Nevera / bebidas", iconos: ["🥛", "🥤"] },
+    { id: 5, nombre: "5. Precocinados / papas", iconos: ["🍟", "🍕"] },
+    { id: 6, nombre: "6. Cereales / Leche / Cuidado", iconos: ["🥣", "🧴"] },
+    { id: 7, nombre: "7. Pan / galletas / café / limpieza", iconos: ["🍞", "🧹"] }
 ];
 
 let datosFirebase = {}; 
@@ -162,75 +162,60 @@ onSnapshot(docRef, (snapshot) => {
     }
 });
 
-let scene, camera, renderer, raycaster, mouse;
-const pasillos3D = [];
-
 function init3DMap() {
     const container = document.getElementById('mapa-3d-container');
     if(!container) return; 
     container.innerHTML = ''; 
-    pasillos3D.length = 0; 
 
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf4f4f9);
-    
-    camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 1000);
-    camera.position.set(0, 45, 0); 
-    camera.lookAt(0, 0, 0);
-
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    container.appendChild(renderer.domElement);
-
-    const light = new THREE.AmbientLight(0xffffff, 0.9);
-    scene.add(light);
-
-    const geometry = new THREE.BoxGeometry(3, 0.5, 16); 
-    
-    ESTRUCTURA_PASILLOS.forEach((p, i) => {
-        const material = new THREE.MeshLambertMaterial({ color: 0xaaaaaa });
-        const mesh = new THREE.Mesh(geometry, material);
+    ESTRUCTURA_PASILLOS.forEach((pasillo, i) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'pasillo-3d-wrapper';
+        wrapper.id = `pasillo-3d-${pasillo.id}`;
         
-        mesh.position.x = -15 + (i * 5); 
-        mesh.position.z = 0; 
-        mesh.position.y = 0; 
+        const posicionX = 15 + (i * 50); 
+        wrapper.style.left = `${posicionX}px`;
+
+        const bloque = document.createElement('div');
+        bloque.className = 'bloque-pasillo';
+        bloque.innerHTML = `<div class="numero-pasillo">${pasillo.id}</div>`;
+        wrapper.appendChild(bloque);
+
+        const iconosContainer = document.createElement('div');
+        iconosContainer.className = 'iconos-container';
         
-        mesh.userData.id = p.id;
-        scene.add(mesh);
-        pasillos3D.push(mesh);
+        pasillo.iconos.forEach(iconoEmoji => {
+            const iconoSpan = document.createElement('span');
+            iconoSpan.className = 'icono-3d';
+            iconoSpan.textContent = iconoEmoji;
+            iconosContainer.appendChild(iconoSpan);
+        });
+        
+        wrapper.appendChild(iconosContainer);
+
+        wrapper.onclick = () => {
+            const target = document.getElementById(`pasillo-html-${pasillo.id}`);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+
+        container.appendChild(wrapper);
     });
-
-    raycaster = new THREE.Raycaster();
-    mouse = new THREE.Vector2();
-
-    container.addEventListener('click', (event) => {
-        const rect = renderer.domElement.getBoundingClientRect();
-        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(pasillos3D);
-
-        if (intersects.length > 0) {
-            const id = intersects[0].object.userData.id;
-            const target = document.getElementById(`pasillo-html-${id}`);
-            if (target) target.scrollIntoView({ behavior: 'smooth' });
-        }
-    });
-
-    function animate() {
-        requestAnimationFrame(animate);
-        renderer.render(scene, camera);
-    }
-    animate();
 }
 
 function actualizarColores3D() {
-    pasillos3D.forEach(mesh => {
-        const id = mesh.userData.id;
-        const productos = datosFirebase[`productos_p${id}`] || [];
+    ESTRUCTURA_PASILLOS.forEach(pasillo => {
+        const productos = datosFirebase[`productos_p${pasillo.id}`] || [];
         const tienePendientes = productos.some(p => !datosFirebase[`tachado_${p}`]);
-        mesh.material.color.setHex(tienePendientes ? 0x008000 : 0xaaaaaa);
+        
+        const wrapperElement = document.getElementById(`pasillo-3d-${pasillo.id}`);
+        if (wrapperElement) {
+            if (tienePendientes) {
+                wrapperElement.classList.add('con-pendientes');
+            } else {
+                wrapperElement.classList.remove('con-pendientes');
+            }
+        }
     });
 }
 
@@ -288,7 +273,6 @@ function crearPopupAlerta() {
         if (e.target === modal) modal.className = 'popup-oculto'; 
     });
 }
-crearPopupAlerta();
 
 function mostrarAlertaDuplicado(producto, pasillo) {
     const modal = document.getElementById('popup-alerta');
@@ -299,3 +283,4 @@ function mostrarAlertaDuplicado(producto, pasillo) {
 }
 
 crearPopupAyuda();
+crearPopupAlerta();
