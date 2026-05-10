@@ -111,14 +111,18 @@ function renderizarLista() {
         divPasillo.appendChild(editor);
 
         const pendientes = productosArr.filter(prod => !datosFirebase[`tachado_${prod}`]);
-
         const comprados = productosArr.filter(prod => datosFirebase[`tachado_${prod}`]);
-        
         const productosOrdenados = [...pendientes, ...comprados];
+
+        const listaContenedor = document.createElement('div');
+        listaContenedor.className = 'contenedor-sortable';
 
         productosOrdenados.forEach(prod => {
             const divProd = document.createElement('div');
             divProd.className = 'producto';
+            
+            divProd.dataset.nombre = prod; 
+            
             if (datosFirebase[`tachado_${prod}`]) divProd.classList.add('comprado');
 
             const cantidad = datosFirebase[`cantidad_${prod}`] || 1;
@@ -151,10 +155,25 @@ function renderizarLista() {
                 borrarProducto(pasillo.id, prod);
             };
 
-            divPasillo.appendChild(divProd);
+            listaContenedor.appendChild(divProd);
         });
 
+        divPasillo.appendChild(listaContenedor);
         containerHTML.appendChild(divPasillo);
+
+        new Sortable(listaContenedor, {
+            animation: 150, 
+            delay: 300, 
+            delayOnTouchOnly: true, 
+            onEnd: async function () {
+
+                const itemsEnPantalla = Array.from(listaContenedor.children);
+                const nuevoOrdenNombres = itemsEnPantalla.map(item => item.dataset.nombre);
+
+                const campo = `productos_p${pasillo.id}`;
+                await setDoc(docRef, { [campo]: nuevoOrdenNombres }, { merge: true });
+            }
+        });
     });
 }
 
