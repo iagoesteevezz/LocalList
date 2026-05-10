@@ -218,6 +218,12 @@ function init3DMap() {
         wrapper.appendChild(iconosContainer);
 
         wrapper.onclick = () => {
+            wrapper.classList.add('click-animado');
+            
+            setTimeout(() => {
+                wrapper.classList.remove('click-animado');
+            }, 300);
+
             const target = document.getElementById(`pasillo-html-${pasillo.id}`);
             if (target) {
                 target.scrollIntoView({ behavior: 'smooth' });
