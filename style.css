@@ -135,7 +135,6 @@ main {
     padding: 0 10px;
 }
 
-/* Aseguramos que el botón se alinee con el header original */
 header { 
     position: relative; 
 } 
@@ -151,7 +150,7 @@ header {
     cursor: pointer;
 }
 
-/* El popup chiquito */
+/* El popup  */
 .popup-oculto { 
     display: none; 
 }
@@ -174,7 +173,7 @@ header {
     padding: 20px;
     border-radius: 10px;
     width: 85%;
-    max-width: 300px; /* Bien chiquito */
+    max-width: 300px; 
     position: relative;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     text-align: left;
@@ -202,13 +201,13 @@ header {
     cursor: pointer;
 }
 
-/* --- ESTILOS PARA EL CONTADOR DE CANTIDAD --- */
+/* ESTILOS PARA EL CONTADOR DE CANTIDAD */
 .contador-cantidad {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-right: 15px;
-    background: #e8f5e9; /* Fondo verdecito claro */
+    background: #e8f5e9;
     padding: 2px 8px;
     border-radius: 8px;
 }
