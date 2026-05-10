@@ -20,7 +20,7 @@ const ESTRUCTURA_PASILLOS = [
     { id: 3, nombre: "3. Salsas / Pasta / Frutos secos " },
     { id: 4, nombre: "4. Nevera / bebidas" },
     { id: 5, nombre: "5. Precocinados / papas" },
-    { id: 6, nombre: "6. Desayunos / Leche / Cuidado" },
+    { id: 6, nombre: "6. Cereales / Leche / Cuidado" },
     { id: 7, nombre: "7. Pan / galletas / café / limpieza" }
 ];
 
