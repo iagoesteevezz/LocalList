@@ -463,6 +463,9 @@ body.dark-mode .opcion-menu {
 body.dark-mode .opcion-menu:hover {
     background-color: #444;
 }
+body.dark-mode .alerta-texto {
+    color: #e0e0e0;
+}
 
 /* ANIMACIÓN DE CLIC EN EL MAPA */
 @keyframes pulsarBoton {

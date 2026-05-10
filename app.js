@@ -27,35 +27,78 @@ const ESTRUCTURA_PASILLOS = [
 let datosFirebase = {}; 
 const containerHTML = document.getElementById('supermercado-container');
 
+
+function normalizarTexto(texto) {
+    return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+}
+
+// 2. Calcula cuántos errores tipográficos hay de diferencia
+function distanciaLevenshtein(a, b) {
+    const matriz = [];
+    for (let i = 0; i <= b.length; i++) { matriz[i] = [i]; }
+    for (let j = 0; j <= a.length; j++) { matriz[0][j] = j; }
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                matriz[i][j] = matriz[i - 1][j - 1];
+            } else {
+                matriz[i][j] = Math.min(matriz[i - 1][j - 1] + 1, Math.min(matriz[i][j - 1] + 1, matriz[i - 1][j] + 1));
+            }
+        }
+    }
+    return matriz[b.length][a.length];
+}
+
+// 3. El juez final: decide si son el mismo producto
+function sonParecidos(prod1, prod2) {
+    let p1 = normalizarTexto(prod1);
+    let p2 = normalizarTexto(prod2);
+
+    if (p1 === p2) return true; // Coincidencia exacta
+
+    // Quitamos los plurales en español (la 's' o 'es' del final)
+    let p1Singular = p1.replace(/es$/g, '').replace(/s$/g, '');
+    let p2Singular = p2.replace(/es$/g, '').replace(/s$/g, '');
+    
+    if (p1Singular === p2Singular) return true; // Ej: "salchicha" == "salchichas"
+
+    // Si las palabras tienen más de 4 letras, perdonamos 1 o 2 errores tipográficos
+    if (p1Singular.length > 4 && p2Singular.length > 4) {
+        let distancia = distanciaLevenshtein(p1Singular, p2Singular);
+        // Si la palabra es muy larga, perdonamos hasta 2 errores (ej: "hamburguesa" y "anburguesa")
+        let margenError = p1Singular.length > 7 ? 2 : 1; 
+        if (distancia <= margenError) return true;
+    }
+
+    return false;
+}
+
+
 // 2. FUNCIÓN PARA AÑADIR PRODUCTO 
 async function agregarProducto(idPasillo, nombreProducto) {
     const nombreLimpio = nombreProducto.trim();
     if (!nombreLimpio) return;
 
-    // 1. Buscamos si el producto ya existe en algún pasillo
     let pasilloDondeExiste = null;
 
     for (const pasillo of ESTRUCTURA_PASILLOS) {
         const productosEnPasillo = datosFirebase[`productos_p${pasillo.id}`] || [];
         
-        // Comprobamos si existe
-        const existe = productosEnPasillo.some(
-            prod => prod.toLowerCase() === nombreLimpio.toLowerCase()
-        );
+        // --- AQUÍ ESTÁ LA MAGIA ---
+        // Ahora usamos nuestra función sonParecidos() en vez de igualar textos
+        const existe = productosEnPasillo.some(prod => sonParecidos(prod, nombreLimpio));
 
         if (existe) {
             pasilloDondeExiste = pasillo.nombre;
-            break; // Si lo encuentra, paramos de buscar
+            break; 
         }
     }
 
-    // 2. Si ya existe, lanzamos un aviso y CANCELAMOS el guardado
     if (pasilloDondeExiste) {
         mostrarAlertaDuplicado(nombreLimpio, pasilloDondeExiste);
         return; 
     }
 
-    // 3. Si no existe en ningún lado, lo guardamos en Firebase con normalidad
     const campo = `productos_p${idPasillo}`;
     await setDoc(docRef, { [campo]: arrayUnion(nombreLimpio) }, { merge: true });
 }
