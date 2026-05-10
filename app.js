@@ -201,3 +201,45 @@ function actualizarColores3D() {
 }
 
 init3DMap();
+
+// ==========================================
+// 8. POPUP DE AYUDA (Inyectado sin tocar HTML)
+// ==========================================
+function crearPopupAyuda() {
+    // 1. Inyectar el botón en el header existente
+    const header = document.querySelector('header');
+    if (header) {
+        const btnAyuda = document.createElement('button');
+        btnAyuda.id = 'btn-ayuda-flotante';
+        btnAyuda.textContent = '❔';
+        header.appendChild(btnAyuda);
+
+        // 2. Crear el contenedor del popup
+        const modal = document.createElement('div');
+        modal.id = 'popup-ayuda';
+        modal.className = 'popup-oculto';
+
+        // 3. Inyectar el contenido con la X arriba a la derecha
+        modal.innerHTML = `
+            <div class="popup-contenido">
+                <span id="cerrar-popup">&times;</span>
+                <h3>¿Cómo funciona?</h3>
+                <p><strong>🏠 En casa:</strong><br>Quita el tick verde a lo que necesites comprar.</p>
+                <p><strong>🛒 En el súper:</strong><br>Pon el tick verde a lo que vayas metiendo al carro.</p>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // 4. Lógica para abrir y cerrar
+        btnAyuda.onclick = () => modal.className = 'popup-visible';
+        document.getElementById('cerrar-popup').onclick = () => modal.className = 'popup-oculto';
+        
+        // Cerrar si tocas fuera del popup
+        window.onclick = (e) => { 
+            if (e.target === modal) modal.className = 'popup-oculto'; 
+        };
+    }
+}
+
+// Ejecutamos la inyección
+crearPopupAyuda();

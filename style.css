@@ -134,3 +134,70 @@ main {
     font-size: 1.2rem;
     padding: 0 10px;
 }
+
+/* Aseguramos que el botón se alinee con el header original */
+header { 
+    position: relative; 
+} 
+
+#btn-ayuda-flotante {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* El popup chiquito */
+.popup-oculto { 
+    display: none; 
+}
+
+.popup-visible {
+    display: flex;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-contenido {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 85%;
+    max-width: 300px; /* Bien chiquito */
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    text-align: left;
+}
+
+.popup-contenido h3 {
+    color: #008000;
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.2rem;
+}
+
+.popup-contenido p {
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+#cerrar-popup {
+    position: absolute;
+    top: 5px;
+    right: 12px;
+    font-size: 1.6rem;
+    color: #888;
+    cursor: pointer;
+}
