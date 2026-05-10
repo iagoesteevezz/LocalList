@@ -476,10 +476,10 @@ body.dark-mode .opcion-menu:hover {
 
 @media (max-width: 600px) {
     #mapa-3d-container {
-        top: 110px; 
+        top: 135px; 
     }
     
     .pasillo {
-        scroll-margin-top: 380px; 
+        scroll-margin-top: 400px; 
     }
 }
