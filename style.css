@@ -340,3 +340,125 @@ main {
 .btn-entendido:active {
     background-color: #006400;
 }
+
+/* =========================================
+   MENÚ DE OPCIONES (TRES PUNTOS)
+   ========================================= */
+#btn-menu-opciones {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#menu-desplegable {
+    display: none; /* Oculto por defecto */
+    position: absolute;
+    top: 60px; /* Justo debajo del cartel verde */
+    left: 10px;
+    background-color: white;
+    min-width: 180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    border-radius: 8px;
+    z-index: 2000;
+    overflow: hidden;
+    text-align: left;
+}
+
+#menu-desplegable.visible {
+    display: block; /* Se muestra al hacer clic */
+}
+
+.opcion-menu {
+    padding: 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    color: #333;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.opcion-menu:last-child {
+    border-bottom: none;
+}
+
+.opcion-menu:hover {
+    background-color: #f0f0f0;
+}
+
+/* MODO OSCURO */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+body.dark-mode header {
+    background-color: #1a4314; 
+}
+
+body.dark-mode .pasillo {
+    background-color: #1e1e1e;
+}
+
+body.dark-mode .pasillo-header {
+    background-color: #2c2c2c;
+    color: #81c784;
+    border-bottom: 1px solid #444;
+}
+
+body.dark-mode .producto {
+    border-bottom: 1px solid #333;
+}
+
+body.dark-mode .producto.comprado {
+    background-color: #121212;
+    color: #777;
+}
+
+body.dark-mode .editor-pasillo {
+    background-color: #2c2c2c;
+}
+
+body.dark-mode .editor-pasillo input {
+    background-color: #1e1e1e;
+    color: white;
+    border: 1px solid #555;
+}
+
+body.dark-mode #mapa-3d-container {
+    background-color: #1e1e1e;
+    border-bottom: 2px solid #333;
+}
+
+body.dark-mode .bloque-pasillo {
+    background-color: #444; 
+}
+
+body.dark-mode .contador-cantidad {
+    background-color: #333;
+}
+
+body.dark-mode .contador-cantidad span {
+    color: #e0e0e0;
+}
+
+body.dark-mode #menu-desplegable, 
+body.dark-mode .popup-contenido {
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+}
+
+body.dark-mode .opcion-menu {
+    color: #e0e0e0;
+    border-bottom: 1px solid #444;
+}
+
+body.dark-mode .opcion-menu:hover {
+    background-color: #444;
+}

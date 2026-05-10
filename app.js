@@ -247,34 +247,25 @@ function actualizarColores3D() {
 init3DMap();
 
 function crearPopupAyuda() {
-    const header = document.querySelector('header');
-    if (header) {
-        const btnAyuda = document.createElement('button');
-        btnAyuda.id = 'btn-ayuda-flotante';
-        btnAyuda.textContent = '❔';
-        header.appendChild(btnAyuda);
+    const modal = document.createElement('div');
+    modal.id = 'popup-ayuda';
+    modal.className = 'popup-oculto';
 
-        const modal = document.createElement('div');
-        modal.id = 'popup-ayuda';
-        modal.className = 'popup-oculto';
+    modal.innerHTML = `
+        <div class="popup-contenido">
+            <span id="cerrar-popup">&times;</span>
+            <h3>¿Cómo funciona?</h3>
+            <p><strong>🏠 En casa:</strong><br>Quita el tick verde a lo que necesites comprar.</p>
+            <p><strong>🛒 En el súper:</strong><br>Pon el tick verde a lo que vayas metiendo al carro.</p>
+        </div>
+    `;
+    document.body.appendChild(modal);
 
-        modal.innerHTML = `
-            <div class="popup-contenido">
-                <span id="cerrar-popup">&times;</span>
-                <h3>¿Cómo funciona?</h3>
-                <p><strong>🏠 En casa:</strong><br>Quita el tick verde a lo que necesites comprar.</p>
-                <p><strong>🛒 En el súper:</strong><br>Pon el tick verde a lo que vayas metiendo al carro.</p>
-            </div>
-        `;
-        document.body.appendChild(modal);
-
-        btnAyuda.onclick = () => modal.className = 'popup-visible';
-        document.getElementById('cerrar-popup').onclick = () => modal.className = 'popup-oculto';
-        
-        window.onclick = (e) => { 
-            if (e.target === modal) modal.className = 'popup-oculto'; 
-        };
-    }
+    document.getElementById('cerrar-popup').onclick = () => modal.className = 'popup-oculto';
+    
+    window.addEventListener('click', (e) => { 
+        if (e.target === modal) modal.className = 'popup-oculto'; 
+    });
 }
 
 // 9. POPUP DE ALERTA (Duplicados)
@@ -293,7 +284,6 @@ function crearPopupAlerta() {
     document.body.appendChild(modal);
 
     document.getElementById('btn-entendido').onclick = () => modal.className = 'popup-oculto';
-    
     window.addEventListener('click', (e) => { 
         if (e.target === modal) modal.className = 'popup-oculto'; 
     });
@@ -307,5 +297,64 @@ function mostrarAlertaDuplicado(producto, pasillo) {
     modal.className = 'popup-visible';
 }
 
+
+function configurarMenuYModoOscuro() {
+    const header = document.querySelector('header');
+    if (!header) return;
+
+    const btnMenu = document.createElement('button');
+    btnMenu.id = 'btn-menu-opciones';
+    btnMenu.innerHTML = '⋮'; 
+    header.appendChild(btnMenu);
+
+    const menuDesplegable = document.createElement('div');
+    menuDesplegable.id = 'menu-desplegable';
+    
+    menuDesplegable.innerHTML = `
+        <div class="opcion-menu" id="opcion-ayuda">❔ Ayuda</div>
+        <div class="opcion-menu" id="opcion-oscuro">🌙 Modo Oscuro</div>
+    `;
+    document.body.appendChild(menuDesplegable);
+
+    btnMenu.onclick = (e) => {
+        e.stopPropagation(); 
+        menuDesplegable.classList.toggle('visible');
+    };
+
+    window.addEventListener('click', (e) => {
+        if (e.target !== btnMenu && e.target !== menuDesplegable) {
+            menuDesplegable.classList.remove('visible');
+        }
+    });
+
+    document.getElementById('opcion-ayuda').onclick = () => {
+        document.getElementById('popup-ayuda').className = 'popup-visible';
+        menuDesplegable.classList.remove('visible'); 
+    };
+
+    // LÓGICA DEL MODO OSCURO
+    const btnOscuro = document.getElementById('opcion-oscuro');
+    
+    if (localStorage.getItem('temaPreferido') === 'oscuro') {
+        document.body.classList.add('dark-mode');
+        btnOscuro.innerHTML = '☀️ Modo Claro';
+    }
+
+    btnOscuro.onclick = () => {
+        document.body.classList.toggle('dark-mode'); 
+        
+        if (document.body.classList.contains('dark-mode')) {
+            localStorage.setItem('temaPreferido', 'oscuro');
+            btnOscuro.innerHTML = '☀️ Modo Claro';
+        } else {
+            localStorage.setItem('temaPreferido', 'claro');
+            btnOscuro.innerHTML = '🌙 Modo Oscuro';
+        }
+        menuDesplegable.classList.remove('visible'); 
+    };
+}
+
+
 crearPopupAyuda();
 crearPopupAlerta();
+configurarMenuYModoOscuro();
