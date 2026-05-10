@@ -78,7 +78,6 @@ main {
 }
 
 .producto.comprado { 
-    text-decoration: line-through; 
     color: #999; 
     background-color: #fafafa; 
 }
