@@ -110,7 +110,13 @@ function renderizarLista() {
         editor.appendChild(btnAdd);
         divPasillo.appendChild(editor);
 
-        productosArr.forEach(prod => {
+        const pendientes = productosArr.filter(prod => !datosFirebase[`tachado_${prod}`]);
+
+        const comprados = productosArr.filter(prod => datosFirebase[`tachado_${prod}`]);
+        
+        const productosOrdenados = [...pendientes, ...comprados];
+
+        productosOrdenados.forEach(prod => {
             const divProd = document.createElement('div');
             divProd.className = 'producto';
             if (datosFirebase[`tachado_${prod}`]) divProd.classList.add('comprado');
