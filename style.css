@@ -101,3 +101,36 @@ main {
     height: 100% !important;
     display: block;
 }
+
+/* Estilos para el editor de productos */
+.editor-pasillo {
+    display: flex;
+    padding: 10px 15px;
+    background: #f9f9f9;
+    gap: 10px;
+}
+
+.editor-pasillo input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+}
+
+.editor-pasillo button {
+    background: #008000;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-borrar {
+    margin-left: auto;
+    color: #ff4444;
+    font-size: 1.2rem;
+    padding: 0 10px;
+}

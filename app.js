@@ -1,8 +1,7 @@
 // 1. Importamos las herramientas de Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+import { getFirestore, doc, onSnapshot, setDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 
-// 2. Tu configuración exacta de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDPb6Ira09z5sUQ4AtD6uyibVKQsQshGgc",
   authDomain: "locallist-18b64.firebaseapp.com",
@@ -12,127 +11,175 @@ const firebaseConfig = {
   appId: "1:951724832714:web:052af9aa9bfcf3c054c133"
 };
 
-// 3. Inicializamos la conexión
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const docRef = doc(db, "supermercados", "mercadona_cruce");
 
-// Esta es la "carpeta" y el "archivo" en la nube donde guardaremos los ticks
-const docRef = doc(db, "listas", "mercadona_cruce");
-
-// 4. Datos del Supermercado
-const mercadonaMelenara = [
-    { id: 1, nombre: "Frutas y Verduras", productos: ["Plátanos", "Tomates"] },
-    { id: 2, nombre: "Pasillo 1: Carnicería", productos: ["Pollo", "Jamón"] },
-    { id: 3, nombre: "Pasillo 2: Lácteos", productos: ["Leche", "Huevos"] },
-    { id: 4, nombre: "Zona Final: Congelados", productos: ["Pizzas", "Hielo"] }
+// 1. LOS 7 PASILLOS REALES DE TU NOTA
+const ESTRUCTURA_PASILLOS = [
+    { id: 1, nombre: "1. Frutas y congelados" },
+    { id: 2, nombre: "2. Carnes y embutidos" },
+    { id: 3, nombre: "3. Salsas y pasta" },
+    { id: 4, nombre: "4. Lácteos y bebidas" },
+    { id: 5, nombre: "5. Precocinados y papas" },
+    { id: 6, nombre: "6. Desayunos y cuidado" },
+    { id: 7, nombre: "7. Pan, galletas, café y limpieza" }
 ];
 
-// Aquí guardaremos en memoria lo que nos diga Firebase que está comprado
-let estadoProductos = {};
+let datosFirebase = {}; 
 const containerHTML = document.getElementById('supermercado-container');
 
-// 5. Función para pintar la lista
-function renderizarListaHTML() {
+// 2. FUNCIÓN PARA AÑADIR PRODUCTO (Lógica de Firebase)
+async function agregarProducto(idPasillo, nombreProducto) {
+    if (!nombreProducto.trim()) return;
+    const campo = `productos_p${idPasillo}`;
+    await setDoc(docRef, { [campo]: arrayUnion(nombreProducto) }, { merge: true });
+}
+
+// 3. FUNCIÓN PARA BORRAR PRODUCTO (Para editar el pasillo)
+async function borrarProducto(idPasillo, nombreProducto) {
+    const campo = `productos_p${idPasillo}`;
+    await updateDoc(docRef, { [campo]: arrayRemove(nombreProducto) });
+}
+
+// 4. FUNCIÓN PARA MARCAR/DESMARCAR (Tachar)
+async function toggleTachado(nombreProducto) {
+    const nuevoEstado = !datosFirebase[`tachado_${nombreProducto}`];
+    await setDoc(docRef, { [`tachado_${nombreProducto}`]: nuevoEstado }, { merge: true });
+}
+
+// 5. RENDERIZAR LA LISTA DINÁMICA
+function renderizarLista() {
     containerHTML.innerHTML = '';
 
-    mercadonaMelenara.forEach(pasillo => {
+    ESTRUCTURA_PASILLOS.forEach(pasillo => {
         const divPasillo = document.createElement('div');
         divPasillo.className = 'pasillo';
-        
-        // ID para poder hacer scroll automático desde el 3D en el futuro
-        divPasillo.id = `pasillo-html-${pasillo.id}`; 
+        divPasillo.id = `pasillo-html-${pasillo.id}`;
 
-        const headerPasillo = document.createElement('div');
-        headerPasillo.className = 'pasillo-header';
-        headerPasillo.textContent = pasillo.nombre;
-        divPasillo.appendChild(headerPasillo);
+        const header = document.createElement('div');
+        header.className = 'pasillo-header';
+        header.textContent = pasillo.nombre;
+        divPasillo.appendChild(header);
 
-        pasillo.productos.forEach(producto => {
-            const divProducto = document.createElement('div');
-            divProducto.className = 'producto';
+        // -- EDITOR: Cuadro para añadir productos --
+        const editor = document.createElement('div');
+        editor.className = 'editor-pasillo';
+        const input = document.createElement('input');
+        input.placeholder = "Añadir a este pasillo...";
+        const btnAdd = document.createElement('button');
+        btnAdd.textContent = "+";
+        btnAdd.onclick = () => {
+            agregarProducto(pasillo.id, input.value);
+            input.value = '';
+        };
+        editor.appendChild(input);
+        editor.appendChild(btnAdd);
+        divPasillo.appendChild(editor);
+
+        // -- LISTA DE PRODUCTOS DEL PASILLO --
+        const productosArr = datosFirebase[`productos_p${pasillo.id}`] || [];
+        productosArr.forEach(prod => {
+            const divProd = document.createElement('div');
+            divProd.className = 'producto';
+            if (datosFirebase[`tachado_${prod}`]) divProd.classList.add('comprado');
+
+            divProd.innerHTML = `
+                <div class="checkbox"></div>
+                <span style="flex:1">${prod}</span>
+                <span class="btn-borrar">×</span>
+            `;
+
+            // Clic en el nombre/check para tachar
+            divProd.querySelector('span').onclick = () => toggleTachado(prod);
+            divProd.querySelector('.checkbox').onclick = () => toggleTachado(prod);
             
-            // ¡MAGIA! Miramos si el producto está marcado como 'true' en Firebase
-            if (estadoProductos[producto] === true) {
-                divProducto.classList.add('comprado');
-            }
-
-            // Al hacer clic, enviamos el nuevo estado a Firebase
-            divProducto.onclick = () => {
-                const nuevoEstado = !estadoProductos[producto]; // Cambiamos de true a false o viceversa
-                
-                // setDoc actualiza la base de datos (merge: true es para no borrar el resto de productos)
-                setDoc(docRef, { [producto]: nuevoEstado }, { merge: true });
+            // Clic en la X para eliminar del inventario (Editar pasillo)
+            divProd.querySelector('.btn-borrar').onclick = (e) => {
+                e.stopPropagation();
+                borrarProducto(pasillo.id, prod);
             };
 
-            const divCheckbox = document.createElement('div');
-            divCheckbox.className = 'checkbox';
-
-            const spanNombre = document.createElement('span');
-            spanNombre.textContent = producto;
-
-            divProducto.appendChild(divCheckbox);
-            divProducto.appendChild(spanNombre);
-            divPasillo.appendChild(divProducto);
+            divPasillo.appendChild(divProd);
         });
 
         containerHTML.appendChild(divPasillo);
     });
 }
 
+// 6. ESCUCHA EN TIEMPO REAL
 onSnapshot(docRef, (snapshot) => {
     if (snapshot.exists()) {
-        estadoProductos = snapshot.data(); 
+        datosFirebase = snapshot.data();
+        renderizarLista();
+        actualizarColores3D(); // Función que crearemos abajo
     } else {
-
         setDoc(docRef, {});
     }
-    renderizarListaHTML();
 });
 
-
-let scene, camera, renderer;
+// ==========================================
+// 7. MAPA 3D CON INTERACTIVIDAD
+// ==========================================
+let scene, camera, renderer, raycaster, mouse;
 const pasillos3D = [];
 
 function init3DMap() {
     const container = document.getElementById('mapa-3d-container');
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    
+    // Limpiamos el contenedor por si Firebase recarga la función
+    container.innerHTML = ''; 
+    pasillos3D.length = 0; 
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf4f4f9);
-
-    camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
-    camera.position.set(20, 20, 20); 
+    
+    camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 1000);
+    // VISTA AÉREA: Colocamos la cámara arriba (Eje Y = 50) mirando hacia abajo (0,0,0)
+    camera.position.set(0, 50, 0); 
     camera.lookAt(0, 0, 0);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(width, height);
+    renderer.setSize(container.clientWidth, container.clientHeight);
     container.appendChild(renderer.domElement);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
+    const light = new THREE.AmbientLight(0xffffff, 0.9);
+    scene.add(light);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(10, 20, 10);
-    scene.add(directionalLight);
+    // DIBUJAR LOS PASILLOS (Aplastados y anchos como el suelo)
+    // Ancho: 18, Alto (grosor del suelo): 0.5, Profundidad: 3.5
+    const geometry = new THREE.BoxGeometry(18, 0.5, 3.5); 
+    
+    ESTRUCTURA_PASILLOS.forEach((p, i) => {
+        const material = new THREE.MeshLambertMaterial({ color: 0xaaaaaa });
+        const mesh = new THREE.Mesh(geometry, material);
+        
+        // Distribuidos de arriba a abajo en la pantalla (Eje Z)
+        mesh.position.z = -15 + (i * 5); 
+        mesh.position.x = 0; // Centrados horizontalmente
+        mesh.position.y = 0; // Pegados al suelo
+        
+        mesh.userData.id = p.id;
+        scene.add(mesh);
+        pasillos3D.push(mesh);
+    });
 
-    const floorGeometry = new THREE.PlaneGeometry(30, 30);
-    const floorMaterial = new THREE.MeshLambertMaterial({ color: 0xdddddd });
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.y = -0.5;
-    scene.add(floor);
+    // --- CLIC EN EL MAPA 3D PARA HACER SCROLL ---
+    raycaster = new THREE.Raycaster();
+    mouse = new THREE.Vector2();
 
-    const geometryPasillo = new THREE.BoxGeometry(2, 2, 8);
-    const materialGris = new THREE.MeshLambertMaterial({ color: 0xaaaaaa });
+    container.addEventListener('click', (event) => {
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-    mercadonaMelenara.forEach((pasilloData, index) => {
-        const pasilloMesh = new THREE.Mesh(geometryPasillo, materialGris.clone());
-        pasilloMesh.position.x = -10 + (index * 6);
-        pasilloMesh.position.z = 0;
-        pasilloMesh.userData.idDatos = pasilloData.id; 
-        scene.add(pasilloMesh);
-        pasillos3D.push(pasilloMesh);
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(pasillos3D);
+
+        if (intersects.length > 0) {
+            const id = intersects[0].object.userData.id;
+            document.getElementById(`pasillo-html-${id}`).scrollIntoView({ behavior: 'smooth' });
+        }
     });
 
     function animate() {
@@ -140,14 +187,18 @@ function init3DMap() {
         renderer.render(scene, camera);
     }
     animate();
-
-    window.addEventListener('resize', onWindowResize, false);
-    function onWindowResize(){
-        camera.aspect = container.clientWidth / container.clientHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(container.clientWidth, container.clientHeight);
-    }
 }
 
-// Arrancamos el 3D (La lista se arranca sola desde el onSnapshot de Firebase)
+// Función para poner en VERDE los pasillos que tienen cosas pendientes
+function actualizarColores3D() {
+    pasillos3D.forEach(mesh => {
+        const id = mesh.userData.id;
+        const productos = datosFirebase[`productos_p${id}`] || [];
+        // Miramos si hay al menos un producto en este pasillo que NO esté tachado
+        const tienePendientes = productos.some(p => !datosFirebase[`tachado_${p}`]);
+        
+        mesh.material.color.setHex(tienePendientes ? 0x008000 : 0xaaaaaa);
+    });
+}
+
 init3DMap();
