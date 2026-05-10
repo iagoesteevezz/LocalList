@@ -108,17 +108,17 @@ main {
     height: 220px;
     background-color: #eee; 
     position: sticky;
-    top: 95px;
+    top: 125px; 
     z-index: 90;
     overflow-x: auto; 
-    overflow-y: hidden; 
+    overflow-y: visible;
     border-bottom: 2px solid #ddd;
     box-shadow: 0 4px 6px -4px rgba(0,0,0,0.2);
     
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding-top: 25px;
+    justify-content: center; 
+    align-items: flex-start; 
+    padding-top: 20px; 
     gap: 15px; 
 }
 
@@ -129,6 +129,7 @@ main {
     width: 40px; 
     cursor: pointer;
     flex-shrink: 0; 
+    margin-top: 15px; 
 }
 
 .bloque-pasillo {
