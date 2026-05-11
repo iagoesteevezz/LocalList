@@ -236,6 +236,18 @@ onSnapshot(docRef, (snapshot) => {
     if (snapshot.exists()) {
         datosFirebase = snapshot.data();
         renderizarLista();
+        if ('setAppBadge' in navigator) {
+            const totalPendientes = ESTRUCTURA_PASILLOS.reduce((acc, p) => {
+                const prods = datosFirebase[`productos_p${p.id}`] || [];
+                return acc + prods.filter(item => !datosFirebase[`tachado_${item}`]).length;
+            }, 0);
+        
+            if (totalPendientes > 0) {
+                navigator.setAppBadge(totalPendientes);
+            } else {
+                navigator.clearAppBadge();
+            }
+        }
         actualizarColores3D();
     } else {
         setDoc(docRef, {});
