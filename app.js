@@ -227,6 +227,10 @@ function renderizarLista() {
     });
 }
 
+if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+}
+
 onSnapshot(docRef, (snapshot) => {
     if (snapshot.exists()) {
         datosFirebase = snapshot.data();
