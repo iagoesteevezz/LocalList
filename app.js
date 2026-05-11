@@ -61,23 +61,20 @@ function distanciaLevenshtein(a, b) {
     return matriz[b.length][a.length];
 }
 
-// 3. El juez final: decide si son el mismo producto
 function sonParecidos(prod1, prod2) {
     let p1 = normalizarTexto(prod1);
     let p2 = normalizarTexto(prod2);
 
-    if (p1 === p2) return true; // Coincidencia exacta
+    if (p1 === p2) return true;
 
-    // Quitamos los plurales en español (la 's' o 'es' del final)
+    // Quitamos los plurales
     let p1Singular = p1.replace(/es$/g, '').replace(/s$/g, '');
     let p2Singular = p2.replace(/es$/g, '').replace(/s$/g, '');
     
-    if (p1Singular === p2Singular) return true; // Ej: "salchicha" == "salchichas"
+    if (p1Singular === p2Singular) return true;
 
-    // Si las palabras tienen más de 4 letras, perdonamos 1 o 2 errores tipográficos
     if (p1Singular.length > 4 && p2Singular.length > 4) {
         let distancia = distanciaLevenshtein(p1Singular, p2Singular);
-        // Si la palabra es muy larga, perdonamos hasta 2 errores (ej: "hamburguesa" y "anburguesa")
         let margenError = p1Singular.length > 7 ? 2 : 1; 
         if (distancia <= margenError) return true;
     }
@@ -96,8 +93,6 @@ async function agregarProducto(idPasillo, nombreProducto) {
     for (const pasillo of ESTRUCTURA_PASILLOS) {
         const productosEnPasillo = datosFirebase[`productos_p${pasillo.id}`] || [];
         
-        // --- AQUÍ ESTÁ LA MAGIA ---
-        // Ahora usamos nuestra función sonParecidos() en vez de igualar textos
         const existe = productosEnPasillo.some(prod => sonParecidos(prod, nombreLimpio));
 
         if (existe) {
