@@ -1,7 +1,7 @@
 // js/ui.js
-// Renderizado de la UI. Trabaja con el nuevo modelo de datos (lista global + súpers dinámicos).
+// Renderizado de la UI. Trabaja con el nuevo modelo de datos (lista global + supers dinamicos).
 
-import { normalizarTexto, sonParecidos } from './data.js';
+import { normalizarTexto, sonParecidos, detectarCategoria, CATEGORIAS } from './data.js';
 import {
     agregarProductoGlobal,
     borrarProductoGlobal,
@@ -11,7 +11,9 @@ import {
 } from './db.js';
 
 // Contexto activo (se setea desde app.js)
-let _ctx = { familiaID: null, superID: null, pasillos: [], userUID: null, memoria: {} };
+let _ctx = {
+    familiaID: null, superID: null, superNombre: '', pasillos: [], userUID: null, memoria: {}
+};
 
 export function setContexto(ctx) {
     _ctx = { ..._ctx, ...ctx };
@@ -21,52 +23,83 @@ export function setMemoria(memoria) {
     _ctx.memoria = memoria;
 }
 
-// ─── VISTA: LISTA GLOBAL ──────────────────────────────────────────────────────
-// Usada en el modo "En casa": muestra todos los productos sin organizar por pasillo.
+// --- VISTA: LISTA GLOBAL -------------------------------------------------------
 
 export function renderizarListaGlobal(productos) {
     const container = document.getElementById('supermercado-container');
     container.innerHTML = '';
 
-    const pendientes = productos.filter(p => !p.tachado);
-    const comprados  = productos.filter(p => p.tachado);
-
-    // Input global para añadir
+    // Input sticky arriba
     const editorGlobal = document.createElement('div');
     editorGlobal.className = 'editor-global';
     editorGlobal.innerHTML = `
-        <input type="text" id="input-global" placeholder="Añadir producto..." autocomplete="off">
+        <input type="text" id="input-global" placeholder="Anadir producto..." autocomplete="off">
         <button id="btn-add-global">+</button>
     `;
     container.appendChild(editorGlobal);
 
     const inputGlobal = editorGlobal.querySelector('#input-global');
-    const btnAdd = editorGlobal.querySelector('#btn-add-global');
+    const btnAdd      = editorGlobal.querySelector('#btn-add-global');
 
-    const handleAdd = () => {
+    const handleAdd = (e) => {
+        if (e) e.preventDefault();
         const val = inputGlobal.value.trim();
         if (!val) return;
+        inputGlobal.value = '';           // limpiar inmediatamente (feedback visual)
+        inputGlobal.focus();
         _handleAgregarProductoGlobal(val, productos);
-        inputGlobal.value = '';
     };
-    btnAdd.onclick = handleAdd;
-    inputGlobal.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAdd(); });
+    btnAdd.addEventListener('click', handleAdd);
+    inputGlobal.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAdd(e); });
 
-    // Lista
-    if (pendientes.length === 0 && comprados.length === 0) {
+    if (productos.length === 0) {
         const vacio = document.createElement('div');
         vacio.className = 'lista-vacia';
-        vacio.innerHTML = `<p>🛒 La lista está vacía.<br>Añade lo que necesitas comprar.</p>`;
+        vacio.innerHTML = '<p>La lista esta vacia.<br>Anade lo que necesitas comprar.</p>';
         container.appendChild(vacio);
         return;
     }
 
+    const pendientes = productos.filter(p => !p.tachado);
+    const comprados  = productos.filter(p =>  p.tachado);
+
+    // Agrupar pendientes por categoria respetando el orden de CATEGORIAS
+    const grupos = {};
+    pendientes.forEach(prod => {
+        const catId = prod.categoria || 'otros';
+        if (!grupos[catId]) grupos[catId] = [];
+        grupos[catId].push(prod);
+    });
+
     const lista = document.createElement('div');
     lista.className = 'lista-global-container';
 
-    [...pendientes, ...comprados].forEach(prod => {
-        lista.appendChild(_crearItemGlobal(prod));
+    CATEGORIAS.forEach(cat => {
+        const prods = grupos[cat.id];
+        if (!prods || prods.length === 0) return;
+
+        const header = document.createElement('div');
+        header.className = 'cat-header';
+        header.innerHTML =
+            '<span class="cat-emoji">' + cat.emoji + '</span>' +
+            '<span class="cat-nombre">' + cat.nombre + '</span>' +
+            '<span class="cat-count">' + prods.length + '</span>';
+        lista.appendChild(header);
+
+        prods.forEach(prod => lista.appendChild(_crearItemGlobal(prod)));
     });
+
+    // Comprados al final como seccion unica
+    if (comprados.length > 0) {
+        const header = document.createElement('div');
+        header.className = 'cat-header cat-header--comprados';
+        header.innerHTML =
+            '<span class="cat-emoji">&#x2705;</span>' +
+            '<span class="cat-nombre">En el carrito</span>' +
+            '<span class="cat-count">' + comprados.length + '</span>';
+        lista.appendChild(header);
+        comprados.forEach(prod => lista.appendChild(_crearItemGlobal(prod)));
+    }
 
     container.appendChild(lista);
     actualizarBadge(productos);
@@ -77,16 +110,15 @@ function _crearItemGlobal(prod) {
     div.className = 'producto' + (prod.tachado ? ' comprado' : '');
     div.dataset.id = prod.id;
 
-    div.innerHTML = `
-        <div class="checkbox"></div>
-        <span class="nombre-prod">${prod.nombre}</span>
-        <div class="contador-cantidad">
-            <button class="btn-restar">-</button>
-            <span class="numero-cant">${prod.cantidad}</span>
-            <button class="btn-sumar">+</button>
-        </div>
-        <span class="btn-borrar">×</span>
-    `;
+    div.innerHTML =
+        '<div class="checkbox' + (prod.tachado ? ' checked' : '') + '"></div>' +
+        '<span class="nombre-prod">' + prod.nombre + '</span>' +
+        '<div class="contador-cantidad">' +
+            '<button class="btn-restar">-</button>' +
+            '<span class="numero-cant">' + prod.cantidad + '</span>' +
+            '<button class="btn-sumar">+</button>' +
+        '</div>' +
+        '<span class="btn-borrar">&times;</span>';
 
     div.querySelector('.checkbox').onclick =
     div.querySelector('.nombre-prod').onclick = () =>
@@ -109,120 +141,120 @@ function _crearItemGlobal(prod) {
 }
 
 async function _handleAgregarProductoGlobal(nombre, productosActuales) {
-    // Comprobar duplicados
-    const duplicado = productosActuales.find(p => sonParecidos(p.nombre, nombre));
-    if (duplicado) {
-        mostrarAlertaDuplicado(nombre, null);
-        return;
+    try {
+        if (!_ctx.familiaID) { console.error('familiaID no definido'); return; }
+        const duplicado = productosActuales.find(p => sonParecidos(p.nombre, nombre));
+        if (duplicado) { mostrarAlertaDuplicado(nombre); return; }
+        const categoria = detectarCategoria(nombre);
+        await agregarProductoGlobal(_ctx.familiaID, nombre, _ctx.userUID, categoria);
+    } catch (err) {
+        console.error('Error al anadir producto:', err);
     }
-    await agregarProductoGlobal(_ctx.familiaID, nombre, _ctx.userUID);
 }
 
-// ─── VISTA: MODO COMPRA (por pasillos) ────────────────────────────────────────
-// Distribuye los productos de la lista global en los pasillos del súper activo.
-// Los productos sin memoria de pasillo se ponen en "Sin asignar".
+// --- VISTA: MODO COMPRA (por pasillos) ----------------------------------------
 
 export function renderizarModoCompra(productos, pasillos, memoria) {
     const container = document.getElementById('supermercado-container');
     container.innerHTML = '';
 
-    // Banner del súper activo
+    // Banner con el nombre real del super (viene de _ctx.superNombre)
     const banner = document.createElement('div');
     banner.className = 'banner-super-activo';
-    banner.innerHTML = `<span id="nombre-super-activo">Cargando súper...</span>`;
+    banner.textContent = _ctx.superNombre || 'Supermercado';
     container.appendChild(banner);
 
-    // Distribuir productos en pasillos
-    const porPasillo = {}; // { pasilloID: [prod, ...] }
+    const porPasillo = {};
     const sinAsignar = [];
 
     pasillos.forEach(p => { porPasillo[p.id] = []; });
 
-    productos.filter(p => !p.tachado).forEach(prod => {
-        const norm = normalizarTexto(prod.nombre);
+    productos.forEach(prod => {
+        const norm     = normalizarTexto(prod.nombre);
         const pasilloID = memoria[norm];
-        if (pasilloID && porPasillo[pasilloID] !== undefined) {
+        if (pasilloID !== undefined && pasilloID !== null && porPasillo[pasilloID] !== undefined) {
             porPasillo[pasilloID].push(prod);
-        } else {
+        } else if (!prod.tachado) {
             sinAsignar.push(prod);
         }
     });
 
-    // Renderizar pasillos con productos
     pasillos.forEach(pasillo => {
         const prods = porPasillo[pasillo.id];
-        if (prods.length === 0) return; // ocultar pasillos vacíos en modo compra
-
-        const divPasillo = _crearSeccionPasillo(pasillo, prods, memoria);
-        container.appendChild(divPasillo);
+        if (!prods || prods.length === 0) return;
+        container.appendChild(_crearSeccionPasillo(pasillo, prods));
     });
 
-    // Sección "Sin asignar"
     if (sinAsignar.length > 0) {
-        const divSinAsignar = _crearSeccionSinAsignar(sinAsignar, pasillos);
-        container.appendChild(divSinAsignar);
-    }
-
-    // Comprados (colapsados al final)
-    const comprados = productos.filter(p => p.tachado);
-    if (comprados.length > 0) {
-        container.appendChild(_crearSeccionComprados(comprados));
+        container.appendChild(_crearSeccionSinAsignar(sinAsignar, pasillos));
     }
 
     actualizarBadge(productos);
 }
 
-function _crearSeccionPasillo(pasillo, productos, memoria) {
+function _crearSeccionPasillo(pasillo, productos) {
     const div = document.createElement('div');
     div.className = 'pasillo';
-    div.id = `pasillo-html-${pasillo.id}`;
+    div.id = 'pasillo-html-' + pasillo.id;
 
-    div.innerHTML = `
-        <div class="pasillo-header">
-            <span>${pasillo.nombre}</span>
-            <span class="contador-pasillo">${productos.length}</span>
-        </div>
-    `;
+    const pendientes  = productos.filter(p => !p.tachado).length;
+    const total       = productos.length;
+    const todoListo   = pendientes === 0;
 
-    const lista = document.createElement('div');
-    lista.className = 'contenedor-sortable';
+    const header = document.createElement('div');
+    header.className = 'pasillo-header' + (todoListo ? ' pasillo-header--completo' : '');
+    header.innerHTML =
+        '<span>' + (pasillo.nombre || ('Pasillo ' + pasillo.id)) + '</span>' +
+        '<span class="contador-pasillo">' + (todoListo ? '&#x2705;' : pendientes + '/' + total) + '</span>';
+    div.appendChild(header);
 
-    productos.forEach(prod => {
-        const item = _crearItemModoCompra(prod);
-        lista.appendChild(item);
-    });
+    const listaEl = document.createElement('div');
+    listaEl.className = 'contenedor-sortable';
 
-    div.appendChild(lista);
+    // Pendientes arriba, tachados al fondo del pasillo
+    const ordenados = [
+        ...productos.filter(p => !p.tachado),
+        ...productos.filter(p =>  p.tachado)
+    ];
+    ordenados.forEach(prod => listaEl.appendChild(_crearItemModoCompra(prod)));
+
+    div.appendChild(listaEl);
     return div;
 }
 
 function _crearItemModoCompra(prod) {
     const div = document.createElement('div');
-    div.className = 'producto';
+    div.className = 'producto producto--compra' + (prod.tachado ? ' comprado' : '');
     div.dataset.id = prod.id;
 
-    div.innerHTML = `
-        <div class="checkbox"></div>
-        <span class="nombre-prod">${prod.nombre}</span>
-        <div class="contador-cantidad">
-            <button class="btn-restar">-</button>
-            <span class="numero-cant">${prod.cantidad}</span>
-            <button class="btn-sumar">+</button>
-        </div>
-    `;
+    const checkClass = prod.tachado ? 'checkbox checked' : 'checkbox';
+    const contadorHTML = prod.tachado
+        ? '<span class="cantidad-comprada">&times;' + prod.cantidad + '</span>'
+        : '<div class="contador-cantidad">' +
+            '<button class="btn-restar">-</button>' +
+            '<span class="numero-cant">' + prod.cantidad + '</span>' +
+            '<button class="btn-sumar">+</button>' +
+          '</div>';
 
-    div.querySelector('.checkbox').onclick =
-    div.querySelector('.nombre-prod').onclick = () =>
-        toggleTachadoGlobal(_ctx.familiaID, prod.id, prod.tachado);
+    div.innerHTML =
+        '<div class="' + checkClass + '"></div>' +
+        '<span class="nombre-prod">' + prod.nombre + '</span>' +
+        contadorHTML;
 
-    div.querySelector('.btn-restar').onclick = (e) => {
-        e.stopPropagation();
-        cambiarCantidadGlobal(_ctx.familiaID, prod.id, prod.cantidad, -1);
-    };
-    div.querySelector('.btn-sumar').onclick = (e) => {
-        e.stopPropagation();
-        cambiarCantidadGlobal(_ctx.familiaID, prod.id, prod.cantidad, 1);
-    };
+    const toggle = () => toggleTachadoGlobal(_ctx.familiaID, prod.id, prod.tachado);
+    div.querySelector('.checkbox').onclick = toggle;
+    div.querySelector('.nombre-prod').onclick = toggle;
+
+    if (!prod.tachado) {
+        div.querySelector('.btn-restar').onclick = (e) => {
+            e.stopPropagation();
+            cambiarCantidadGlobal(_ctx.familiaID, prod.id, prod.cantidad, -1);
+        };
+        div.querySelector('.btn-sumar').onclick = (e) => {
+            e.stopPropagation();
+            cambiarCantidadGlobal(_ctx.familiaID, prod.id, prod.cantidad, 1);
+        };
+    }
 
     return div;
 }
@@ -231,96 +263,54 @@ function _crearSeccionSinAsignar(productos, pasillos) {
     const div = document.createElement('div');
     div.className = 'pasillo pasillo--sin-asignar';
 
-    div.innerHTML = `
-        <div class="pasillo-header pasillo-header--alerta">
-            <span>❓ Sin pasillo asignado</span>
-            <span class="contador-pasillo">${productos.length}</span>
-        </div>
-        <p class="sin-asignar-hint">Toca un producto para asignarle pasillo en este súper.</p>
-    `;
+    const header = document.createElement('div');
+    header.className = 'pasillo-header pasillo-header--alerta';
+    header.innerHTML =
+        '<span>&#x2753; Sin pasillo asignado</span>' +
+        '<span class="contador-pasillo">' + productos.length + '</span>';
+    div.appendChild(header);
 
-    const lista = document.createElement('div');
-    lista.className = 'contenedor-sortable';
+    const hint = document.createElement('p');
+    hint.className = 'sin-asignar-hint';
+    hint.textContent = 'Toca un producto para asignarle pasillo en este super.';
+    div.appendChild(hint);
+
+    const listaEl = document.createElement('div');
+    listaEl.className = 'contenedor-sortable';
 
     productos.forEach(prod => {
         const item = _crearItemModoCompra(prod);
-
-        // Al tocar el nombre → modal para asignar pasillo
-        item.querySelector('.nombre-prod').onclick = (e) => {
-            e.stopPropagation();
-            mostrarModalAsignarPasillo(prod, pasillos);
-        };
-        item.querySelector('.checkbox').onclick = (e) => {
-            e.stopPropagation();
-            mostrarModalAsignarPasillo(prod, pasillos);
-        };
-
-        lista.appendChild(item);
+        const abrirModal = (e) => { e.stopPropagation(); mostrarModalAsignarPasillo(prod, pasillos); };
+        item.querySelector('.nombre-prod').onclick = abrirModal;
+        item.querySelector('.checkbox').onclick    = abrirModal;
+        listaEl.appendChild(item);
     });
 
-    div.appendChild(lista);
+    div.appendChild(listaEl);
     return div;
 }
 
-function _crearSeccionComprados(productos) {
-    const div = document.createElement('div');
-    div.className = 'pasillo pasillo--comprados';
-
-    const header = document.createElement('div');
-    header.className = 'pasillo-header pasillo-header--comprados';
-    header.innerHTML = `
-        <span>✅ Ya en el carro (${productos.length})</span>
-        <span class="contador-pasillo toggle-comprados-btn">▼</span>
-    `;
-
-    const lista = document.createElement('div');
-    lista.className = 'lista-comprados oculta';
-
-    productos.forEach(prod => {
-        const item = document.createElement('div');
-        item.className = 'producto comprado';
-        item.innerHTML = `
-            <div class="checkbox checked"></div>
-            <span class="nombre-prod">${prod.nombre}</span>
-        `;
-        item.querySelector('.checkbox').onclick =
-        item.querySelector('.nombre-prod').onclick = () =>
-            toggleTachadoGlobal(_ctx.familiaID, prod.id, prod.tachado);
-        lista.appendChild(item);
-    });
-
-    header.onclick = () => {
-        lista.classList.toggle('oculta');
-        header.querySelector('.toggle-comprados-btn').textContent =
-            lista.classList.contains('oculta') ? '▼' : '▲';
-    };
-
-    div.appendChild(header);
-    div.appendChild(lista);
-    return div;
-}
-
-// ─── MODAL ASIGNAR PASILLO ────────────────────────────────────────────────────
+// --- MODAL ASIGNAR PASILLO ----------------------------------------------------
 
 function mostrarModalAsignarPasillo(prod, pasillos) {
-    const existing = document.getElementById('modal-asignar');
-    if (existing) existing.remove();
+    document.getElementById('modal-asignar')?.remove();
 
     const modal = document.createElement('div');
     modal.id = 'modal-asignar';
     modal.className = 'popup-visible';
 
     const opciones = pasillos.map(p =>
-        `<button class="btn-pasillo-opcion" data-pasillo="${p.id}">${p.nombre}</button>`
+        '<button class="btn-pasillo-opcion" data-pasillo="' + p.id + '">' +
+        (p.nombre || ('Pasillo ' + p.id)) +
+        '</button>'
     ).join('');
 
-    modal.innerHTML = `
-        <div class="popup-contenido">
-            <span id="cerrar-modal-asignar" style="float:right;cursor:pointer;font-size:1.5rem">&times;</span>
-            <h3>¿En qué pasillo está <em>${prod.nombre}</em>?</h3>
-            <div class="lista-pasillos-opciones">${opciones}</div>
-        </div>
-    `;
+    modal.innerHTML =
+        '<div class="popup-contenido">' +
+            '<span id="cerrar-modal-asignar" style="float:right;cursor:pointer;font-size:1.5rem">&times;</span>' +
+            '<h3>En que pasillo esta <em>' + prod.nombre + '</em>?</h3>' +
+            '<div class="lista-pasillos-opciones">' + opciones + '</div>' +
+        '</div>';
 
     document.body.appendChild(modal);
 
@@ -329,21 +319,16 @@ function mostrarModalAsignarPasillo(prod, pasillos) {
 
     modal.querySelectorAll('.btn-pasillo-opcion').forEach(btn => {
         btn.onclick = async () => {
-            const pasilloID = parseInt(btn.dataset.pasillo);
+            const pasilloID = Number(btn.dataset.pasillo);
             const norm = normalizarTexto(prod.nombre);
-
-            // Guardar en memoria
             await guardarMemoria(_ctx.familiaID, _ctx.superID, norm, pasilloID);
-
-            // Marcar como tachado (lo meten al carro)
             await toggleTachadoGlobal(_ctx.familiaID, prod.id, false);
-
             modal.remove();
         };
     });
 }
 
-// ─── MAPA 3D ──────────────────────────────────────────────────────────────────
+// --- MAPA 3D ------------------------------------------------------------------
 
 export function init3DMap(pasillos = []) {
     const container = document.getElementById('mapa-3d-container');
@@ -353,30 +338,32 @@ export function init3DMap(pasillos = []) {
     pasillos.forEach((pasillo, i) => {
         const wrapper = document.createElement('div');
         wrapper.className = 'pasillo-3d-wrapper';
-        wrapper.id = `pasillo-3d-${pasillo.id}`;
-        wrapper.style.left = `${15 + (i * 50)}px`;
+        wrapper.id = 'pasillo-3d-' + pasillo.id;
+        wrapper.style.left = (15 + i * 52) + 'px';
 
-        const bloque = document.createElement('div');
-        bloque.className = 'bloque-pasillo';
-        bloque.innerHTML = `<div class="numero-pasillo">${pasillo.id}</div>`;
-        wrapper.appendChild(bloque);
+        // Numero / ID del pasillo
+        const num = document.createElement('div');
+        num.className = 'p3d-numero';
+        num.textContent = pasillo.id;
 
-        const iconosContainer = document.createElement('div');
-        iconosContainer.className = 'iconos-container';
-        (pasillo.iconos || []).forEach(emoji => {
-            const span = document.createElement('span');
-            span.className = 'icono-3d';
-            span.textContent = emoji;
-            iconosContainer.appendChild(span);
+        // Iconos del pasillo
+        const iconos = document.createElement('div');
+        iconos.className = 'p3d-iconos';
+        (pasillo.iconos || []).slice(0, 2).forEach(emoji => {
+            const sp = document.createElement('span');
+            sp.textContent = emoji;
+            iconos.appendChild(sp);
         });
-        wrapper.appendChild(iconosContainer);
 
-        wrapper.onclick = () => {
-            wrapper.classList.add('click-animado');
-            setTimeout(() => wrapper.classList.remove('click-animado'), 300);
-            document.getElementById(`pasillo-html-${pasillo.id}`)
-                ?.scrollIntoView({ behavior: 'smooth' });
-        };
+        wrapper.appendChild(num);
+        wrapper.appendChild(iconos);
+
+        wrapper.addEventListener('click', () => {
+            wrapper.classList.add('p3d--pressed');
+            setTimeout(() => wrapper.classList.remove('p3d--pressed'), 250);
+            document.getElementById('pasillo-html-' + pasillo.id)
+                ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
 
         container.appendChild(wrapper);
     });
@@ -386,39 +373,39 @@ export function actualizarColores3D(productos, pasillos, memoria) {
     pasillos.forEach(pasillo => {
         const tienePendientes = productos.some(p => {
             if (p.tachado) return false;
-            const norm = normalizarTexto(p.nombre);
-            return memoria[norm] === pasillo.id;
+            return memoria[normalizarTexto(p.nombre)] === pasillo.id;
         });
-        document.getElementById(`pasillo-3d-${pasillo.id}`)
-            ?.classList.toggle('con-pendientes', tienePendientes);
+        const el = document.getElementById('pasillo-3d-' + pasillo.id);
+        if (!el) return;
+        el.classList.toggle('p3d--pendiente', tienePendientes);
+        el.classList.toggle('p3d--completo',  !tienePendientes);
     });
 }
 
-// ─── BADGE ────────────────────────────────────────────────────────────────────
+// --- BADGE --------------------------------------------------------------------
 
 export function actualizarBadge(productos) {
     if (!('setAppBadge' in navigator)) return;
-    const pendientes = productos.filter(p => !p.tachado).length;
-    pendientes > 0 ? navigator.setAppBadge(pendientes) : navigator.clearAppBadge();
+    const n = productos.filter(p => !p.tachado).length;
+    n > 0 ? navigator.setAppBadge(n) : navigator.clearAppBadge();
 }
 
-// ─── POPUPS ───────────────────────────────────────────────────────────────────
+// --- POPUPS -------------------------------------------------------------------
 
 export function crearPopupAyuda() {
     document.getElementById('popup-ayuda')?.remove();
     const modal = document.createElement('div');
     modal.id = 'popup-ayuda';
     modal.className = 'popup-oculto';
-    modal.innerHTML = `
-        <div class="popup-contenido">
-            <span id="cerrar-popup">&times;</span>
-            <h3>¿Cómo funciona?</h3>
-            <p><strong>🏠 En casa:</strong><br>Añade lo que necesitas a la lista global.</p>
-            <p><strong>🛒 En el súper:</strong><br>Pulsa "Ir a Comprar", elige el supermercado y la app organiza todo por pasillos automáticamente.</p>
-        </div>
-    `;
+    modal.innerHTML =
+        '<div class="popup-contenido">' +
+            '<span id="cerrar-popup">&times;</span>' +
+            '<h3>Como funciona?</h3>' +
+            '<p><strong>En casa:</strong><br>Anade lo que necesitas a la lista global.</p>' +
+            '<p><strong>En el super:</strong><br>Pulsa "Ir a Comprar", elige el supermercado y la app organiza todo por pasillos automaticamente.</p>' +
+        '</div>';
     document.body.appendChild(modal);
-    document.getElementById('cerrar-popup').onclick = () => modal.className = 'popup-oculto';
+    document.getElementById('cerrar-popup').onclick = () => { modal.className = 'popup-oculto'; };
     window.addEventListener('click', (e) => { if (e.target === modal) modal.className = 'popup-oculto'; });
 }
 
@@ -427,26 +414,26 @@ export function crearPopupAlerta() {
     const modal = document.createElement('div');
     modal.id = 'popup-alerta';
     modal.className = 'popup-oculto';
-    modal.innerHTML = `
-        <div class="popup-contenido">
-            <div class="alerta-icono">⚠️</div>
-            <div class="alerta-texto" id="alerta-mensaje"></div>
-            <button class="btn-entendido" id="btn-entendido">Entendido</button>
-        </div>
-    `;
+    modal.innerHTML =
+        '<div class="popup-contenido">' +
+            '<div class="alerta-icono">&#x26A0;&#xFE0F;</div>' +
+            '<div class="alerta-texto" id="alerta-mensaje"></div>' +
+            '<button class="btn-entendido" id="btn-entendido">Entendido</button>' +
+        '</div>';
     document.body.appendChild(modal);
-    document.getElementById('btn-entendido').onclick = () => modal.className = 'popup-oculto';
+    document.getElementById('btn-entendido').onclick = () => { modal.className = 'popup-oculto'; };
     window.addEventListener('click', (e) => { if (e.target === modal) modal.className = 'popup-oculto'; });
 }
 
 export function mostrarAlertaDuplicado(producto) {
     const modal = document.getElementById('popup-alerta');
+    if (!modal) return;
     document.getElementById('alerta-mensaje').innerHTML =
-        `¡Espera!<br><br>El producto <strong>"${producto}"</strong> ya está en la lista.`;
+        'Espera!<br><br>El producto <strong>"' + producto + '"</strong> ya esta en la lista.';
     modal.className = 'popup-visible';
 }
 
-// ─── MENÚ Y MODO OSCURO ───────────────────────────────────────────────────────
+// --- MENU Y MODO OSCURO -------------------------------------------------------
 
 export function configurarMenuYModoOscuro(ctx = {}) {
     document.getElementById('btn-menu-opciones')?.remove();
@@ -457,262 +444,86 @@ export function configurarMenuYModoOscuro(ctx = {}) {
 
     const btnMenu = document.createElement('button');
     btnMenu.id = 'btn-menu-opciones';
-    btnMenu.innerHTML = '⋮';
-    header.appendChild(btnMenu);
-
-    const menuDesplegable = document.createElement('div');
-    menuDesplegable.id = 'menu-desplegable';
-    menuDesplegable.innerHTML = `
-        <div class="opcion-menu" id="opcion-ayuda">❔ Ayuda</div>
-        <div class="opcion-menu" id="opcion-oscuro">🌙 Modo Oscuro</div>
-        <div class="opcion-menu opcion-menu--codigo" id="opcion-codigo">🔑 Código familiar</div>
-        <div class="opcion-menu opcion-menu--danger" id="opcion-salir">🚪 Cerrar sesión</div>
-    `;
-    document.body.appendChild(menuDesplegable);
-
-    btnMenu.onclick = (e) => { e.stopPropagation(); menuDesplegable.classList.toggle('visible'); };
-    window.addEventListener('click', (e) => { if (e.target !== btnMenu) menuDesplegable.classList.remove('visible'); });
-
-    document.getElementById('opcion-ayuda').onclick = () => {
-        document.getElementById('popup-ayuda').className = 'popup-visible';
-        menuDesplegable.classList.remove('visible');
-    };
-
-    const btnOscuro = document.getElementById('opcion-oscuro');
-    if (localStorage.getItem('temaPreferido') === 'oscuro') {
-        document.body.classList.add('dark-mode');
-        btnOscuro.innerHTML = '☀️ Modo Claro';
-    }
-    btnOscuro.onclick = () => {
-        document.body.classList.toggle('dark-mode');
-        const oscuro = document.body.classList.contains('dark-mode');
-        localStorage.setItem('temaPreferido', oscuro ? 'oscuro' : 'claro');
-        btnOscuro.innerHTML = oscuro ? '☀️ Modo Claro' : '🌙 Modo Oscuro';
-        menuDesplegable.classList.remove('visible');
-    };
-
-    document.getElementById('opcion-codigo').onclick = async () => {
-        menuDesplegable.classList.remove('visible');
-        if (!ctx.familiaID) return;
-        const { getDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js");
-        const { db } = await import('./firebase.js');
-        const snap = await getDoc(doc(db, "families", ctx.familiaID));
-        if (snap.exists()) _mostrarPopupCodigo(snap.data().codigo);
-    };
-
-    document.getElementById('opcion-salir').onclick = () => {
-        menuDesplegable.classList.remove('visible');
-        ctx.onCerrarSesion?.();
-    };
-}
-
-function _mostrarPopupCodigo(codigo) {
-    document.getElementById('popup-codigo')?.remove();
-    const modal = document.createElement('div');
-    modal.id = 'popup-codigo';
-    modal.className = 'popup-visible';
-    modal.innerHTML = `
-        <div class="popup-contenido" style="text-align:center">
-            <span id="cerrar-popup-codigo" style="float:right;cursor:pointer;font-size:1.5rem">&times;</span>
-            <h3>🔑 Código familiar</h3>
-            <p>Comparte este código con tu familia:</p>
-            <div style="font-size:2rem;letter-spacing:6px;font-weight:bold;padding:12px;
-                background:var(--color-fondo-pasillo,#e8f5e9);border-radius:8px;margin:12px 0">${codigo}</div>
-            <button class="btn-entendido" id="btn-copiar-codigo">📋 Copiar</button>
-        </div>
-    `;
-    document.body.appendChild(modal);
-    document.getElementById('cerrar-popup-codigo').onclick = () => modal.remove();
-    document.getElementById('btn-copiar-codigo').onclick = () => {
-        navigator.clipboard.writeText(codigo).then(() => {
-            document.getElementById('btn-copiar-codigo').textContent = '✅ Copiado';
-        });
-    };
-    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-}
-
-// MAPA 3D
-export function init3DMap(pasillos) {
-    const container = document.getElementById('mapa-3d-container');
-    if (!container) return;
-    container.innerHTML = '';
-    if (!pasillos || pasillos.length === 0) return;
-
-    pasillos.forEach((pasillo, i) => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'pasillo-3d-wrapper';
-        wrapper.id = 'pasillo-3d-' + pasillo.id;
-        wrapper.style.left = (15 + i * 50) + 'px';
-
-        const bloque = document.createElement('div');
-        bloque.className = 'bloque-pasillo';
-        bloque.innerHTML = '<div class="numero-pasillo">' + pasillo.id + '</div>';
-        wrapper.appendChild(bloque);
-
-        const iconosContainer = document.createElement('div');
-        iconosContainer.className = 'iconos-container';
-        (pasillo.iconos || []).forEach(emoji => {
-            const span = document.createElement('span');
-            span.className = 'icono-3d';
-            span.textContent = emoji;
-            iconosContainer.appendChild(span);
-        });
-        wrapper.appendChild(iconosContainer);
-
-        wrapper.onclick = () => {
-            wrapper.classList.add('click-animado');
-            setTimeout(() => wrapper.classList.remove('click-animado'), 300);
-            document.getElementById('pasillo-html-' + pasillo.id)
-                ?.scrollIntoView({ behavior: 'smooth' });
-        };
-        container.appendChild(wrapper);
-    });
-}
-
-export function actualizarColores3D(productos, pasillos, memoria) {
-    if (!pasillos) return;
-    pasillos.forEach(pasillo => {
-        const tienePendientes = productos.some(p => {
-            if (p.tachado) return false;
-            const norm = p.nombre.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
-            return memoria[norm] === pasillo.id;
-        });
-        document.getElementById('pasillo-3d-' + pasillo.id)
-            ?.classList.toggle('con-pendientes', tienePendientes);
-    });
-}
-
-// BADGE
-export function actualizarBadge(productos) {
-    if (!('setAppBadge' in navigator)) return;
-    const n = productos.filter(p => !p.tachado).length;
-    n > 0 ? navigator.setAppBadge(n) : navigator.clearAppBadge();
-}
-
-// POPUPS
-export function crearPopupAyuda() {
-    document.getElementById('popup-ayuda')?.remove();
-    const modal = document.createElement('div');
-    modal.id = 'popup-ayuda';
-    modal.className = 'popup-oculto';
-    modal.innerHTML = '<div class="popup-contenido">' +
-        '<span id="cerrar-popup" style="float:right;cursor:pointer;font-size:1.5rem">&times;</span>' +
-        '<h3>Como funciona?</h3>' +
-        '<p><strong>En casa:</strong> Anade lo que necesitas a la lista.</p>' +
-        '<p><strong>En el super:</strong> Pulsa "Ir a Comprar", elige el supermercado y la app lo organiza por pasillos.</p>' +
-        '</div>';
-    document.body.appendChild(modal);
-    document.getElementById('cerrar-popup').onclick = () => modal.className = 'popup-oculto';
-    window.addEventListener('click', e => { if (e.target === modal) modal.className = 'popup-oculto'; });
-}
-
-export function crearPopupAlerta() {
-    document.getElementById('popup-alerta')?.remove();
-    const modal = document.createElement('div');
-    modal.id = 'popup-alerta';
-    modal.className = 'popup-oculto';
-    modal.innerHTML = '<div class="popup-contenido">' +
-        '<div class="alerta-icono">!</div>' +
-        '<div class="alerta-texto" id="alerta-mensaje"></div>' +
-        '<button class="btn-entendido" id="btn-entendido">Entendido</button>' +
-        '</div>';
-    document.body.appendChild(modal);
-    document.getElementById('btn-entendido').onclick = () => modal.className = 'popup-oculto';
-    window.addEventListener('click', e => { if (e.target === modal) modal.className = 'popup-oculto'; });
-}
-
-export function mostrarAlertaDuplicado(producto) {
-    const modal = document.getElementById('popup-alerta');
-    document.getElementById('alerta-mensaje').innerHTML =
-        'El producto <strong>"' + producto + '"</strong> ya esta en la lista.';
-    modal.className = 'popup-visible';
-}
-
-// MENU
-export function configurarMenuYModoOscuro(ctx) {
-    ctx = ctx || {};
-    document.getElementById('btn-menu-opciones')?.remove();
-    document.getElementById('menu-desplegable')?.remove();
-
-    const header = document.querySelector('header');
-    if (!header) return;
-
-    const btnMenu = document.createElement('button');
-    btnMenu.id = 'btn-menu-opciones';
-    btnMenu.innerHTML = '&#8942;';
+    btnMenu.innerHTML = '&#x22EE;';
     header.appendChild(btnMenu);
 
     const menu = document.createElement('div');
     menu.id = 'menu-desplegable';
     menu.innerHTML =
-        '<div class="opcion-menu" id="opcion-ayuda">Ayuda</div>' +
-        '<div class="opcion-menu" id="opcion-oscuro">Modo Oscuro</div>' +
-        '<div class="opcion-menu" id="opcion-supermercados">Supermercados</div>' +
-        '<div class="opcion-menu" id="opcion-codigo">Codigo familiar</div>' +
-        '<div class="opcion-menu opcion-menu--danger" id="opcion-salir">Cerrar sesion</div>';
+        '<div class="opcion-menu" id="opcion-ayuda">&#x2754; Ayuda</div>' +
+        '<div class="opcion-menu" id="opcion-oscuro">&#x1F319; Modo Oscuro</div>' +
+        '<div class="opcion-menu" id="opcion-supers">&#x1F3EA; Supermercados</div>' +
+        '<div class="opcion-menu opcion-menu--codigo" id="opcion-codigo">&#x1F511; Codigo familiar</div>' +
+        '<div class="opcion-menu opcion-menu--danger" id="opcion-salir">&#x1F6AA; Cerrar sesion</div>';
     document.body.appendChild(menu);
 
-    btnMenu.onclick = e => { e.stopPropagation(); menu.classList.toggle('visible'); };
-    window.addEventListener('click', e => { if (e.target !== btnMenu) menu.classList.remove('visible'); });
+    btnMenu.onclick = (e) => { e.stopPropagation(); menu.classList.toggle('visible'); };
+    window.addEventListener('click', (e) => { if (e.target !== btnMenu) menu.classList.remove('visible'); });
 
     document.getElementById('opcion-ayuda').onclick = () => {
         document.getElementById('popup-ayuda').className = 'popup-visible';
         menu.classList.remove('visible');
     };
 
+    // Modo oscuro
+    const temaGuardado = localStorage.getItem('temaPreferido');
+    if (temaGuardado === 'oscuro') document.body.classList.add('dark-mode');
+
     const btnOscuro = document.getElementById('opcion-oscuro');
-    if (localStorage.getItem('temaPreferido') === 'oscuro') {
-        document.body.classList.add('dark-mode');
-        btnOscuro.textContent = 'Modo Claro';
-    }
     btnOscuro.onclick = () => {
-        document.body.classList.toggle('dark-mode');
-        const oscuro = document.body.classList.contains('dark-mode');
-        localStorage.setItem('temaPreferido', oscuro ? 'oscuro' : 'claro');
-        btnOscuro.textContent = oscuro ? 'Modo Claro' : 'Modo Oscuro';
+        const isDark = document.body.classList.toggle('dark-mode');
+        localStorage.setItem('temaPreferido', isDark ? 'oscuro' : 'claro');
         menu.classList.remove('visible');
     };
 
-    document.getElementById('opcion-supermercados').onclick = async () => {
+    // Supermercados
+    if (ctx.onGestorSupermercados) {
+        document.getElementById('opcion-supers').onclick = () => {
+            menu.classList.remove('visible');
+            ctx.onGestorSupermercados();
+        };
+    }
+
+    // Codigo familiar
+    document.getElementById('opcion-codigo').onclick = () => {
         menu.classList.remove('visible');
-        if (!ctx.onGestorSupermercados) return;
-        ctx.onGestorSupermercados();
+        _mostrarCodigoFamiliar(ctx.familiaID);
     };
 
-    document.getElementById('opcion-codigo').onclick = async () => {
-        menu.classList.remove('visible');
-        if (!ctx.familiaID) return;
-        const { getDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js");
-        const { db } = await import('./firebase.js');
-        const snap = await getDoc(doc(db, "families", ctx.familiaID));
-        if (snap.exists()) _mostrarPopupCodigo(snap.data().codigo);
-    };
-
+    // Cerrar sesion
     document.getElementById('opcion-salir').onclick = () => {
         menu.classList.remove('visible');
         if (ctx.onCerrarSesion) ctx.onCerrarSesion();
     };
 }
 
-function _mostrarPopupCodigo(codigo) {
-    document.getElementById('popup-codigo')?.remove();
-    const modal = document.createElement('div');
-    modal.id = 'popup-codigo';
-    modal.className = 'popup-visible';
-    modal.innerHTML = '<div class="popup-contenido" style="text-align:center">' +
-        '<span id="cerrar-popup-codigo" style="float:right;cursor:pointer;font-size:1.5rem">&times;</span>' +
-        '<h3>Codigo familiar</h3>' +
-        '<p>Comparte este codigo con tu familia:</p>' +
-        '<div style="font-size:2rem;letter-spacing:6px;font-weight:bold;padding:12px;' +
-        'background:#e8f5e9;border-radius:8px;margin:12px 0">' + codigo + '</div>' +
-        '<button class="btn-entendido" id="btn-copiar-codigo">Copiar</button>' +
-        '</div>';
-    document.body.appendChild(modal);
-    document.getElementById('cerrar-popup-codigo').onclick = () => modal.remove();
-    document.getElementById('btn-copiar-codigo').onclick = () => {
-        navigator.clipboard.writeText(codigo).then(() => {
-            document.getElementById('btn-copiar-codigo').textContent = 'Copiado!';
-        });
-    };
-    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+async function _mostrarCodigoFamiliar(familiaID) {
+    if (!familiaID) return;
+    try {
+        const { getDoc, doc } = await import(
+            'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js'
+        );
+        const { db } = await import('./firebase.js');
+        const snap = await getDoc(doc(db, 'families', familiaID));
+        const codigo = snap.exists() ? snap.data().codigo : '---';
+
+        const existing = document.getElementById('modal-codigo');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'modal-codigo';
+        modal.className = 'popup-visible';
+        modal.innerHTML =
+            '<div class="popup-contenido">' +
+                '<span id="cerrar-codigo" style="float:right;cursor:pointer;font-size:1.5rem">&times;</span>' +
+                '<h3>Codigo de familia</h3>' +
+                '<div class="codigo-display">' + codigo + '</div>' +
+                '<p style="text-align:center;color:#666;font-size:.9rem">Comparte este codigo con tu familia para que puedan unirse.</p>' +
+            '</div>';
+        document.body.appendChild(modal);
+        document.getElementById('cerrar-codigo').onclick = () => modal.remove();
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+    } catch (e) {
+        console.error('Error al obtener codigo familiar:', e);
+    }
 }

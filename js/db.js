@@ -46,10 +46,10 @@ export function suscribirListaGlobal(familiaID, callback) {
     });
 }
 
-export async function agregarProductoGlobal(familiaID, nombre, userUID) {
+export async function agregarProductoGlobal(familiaID, nombre, userUID, categoria = 'otros') {
     return (await addDoc(_ref.listaGlobal(familiaID), {
         nombre: nombre.trim(), cantidad: 1, tachado: false,
-        addedBy: userUID, addedAt: serverTimestamp()
+        categoria, addedBy: userUID, addedAt: serverTimestamp()
     })).id;
 }
 
@@ -125,5 +125,54 @@ export async function migrarDocumentoAntiguo(familiaID, userUID) {
     }
 
     await setDoc(_ref.familia(familiaID), { migradoDesdeV1: true }, { merge: true });
+    return superID;
+}
+
+// ── SUPERMERCADOS DE COMUNIDAD ─────────────────────────────────────────────────
+// Coleccion publica: supermarkets_community/{id}
+// { nombre, icono, pasillos, region, publicadoPor, usos }
+
+export async function buscarSupermercadosComunidad(termino) {
+    const { collection: col, getDocs: gd, query: q, where, orderBy: ob, limit } =
+        await import("https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js");
+    const ref = col(db, "supermarkets_community");
+    // Traemos todos y filtramos en cliente (Firestore no tiene full-text)
+    const snap = await gd(q(ref, ob("usos", "desc"), limit(50)));
+    const term = termino.trim().toLowerCase();
+    return snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(s => !term || s.nombre.toLowerCase().includes(term));
+}
+
+export async function publicarSupermercadoComunidad(super_, userUID) {
+    const { collection: col, addDoc: ad, serverTimestamp: st } =
+        await import("https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js");
+    const ref = col(db, "supermarkets_community");
+    return (await ad(ref, {
+        nombre: super_.nombre,
+        icono: super_.icono || '🏪',
+        pasillos: super_.pasillos,
+        publicadoPor: userUID,
+        usos: 0,
+        creadoEn: st()
+    })).id;
+}
+
+export async function copiarSupermercadoDeComunidad(familiaID, communityID, userUID) {
+    const { doc: d, getDoc: gd, updateDoc: ud, increment } =
+        await import("https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js");
+    const snap = await gd(d(db, "supermarkets_community", communityID));
+    if (!snap.exists()) throw new Error("Supermercado no encontrado");
+    const data = snap.data();
+
+    // Copiar a la familia
+    const superID = await crearSupermercado(familiaID, {
+        nombre: data.nombre,
+        icono: data.icono,
+        pasillos: data.pasillos
+    });
+
+    // Incrementar contador de usos
+    await ud(d(db, "supermarkets_community", communityID), { usos: increment(1) });
     return superID;
 }

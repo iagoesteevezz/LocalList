@@ -144,7 +144,7 @@ async function _activarModoCompra(supermercado) {
     _state.modo = 'compra';
     localStorage.setItem('locallist_lastSuper', supermercado.id);
     _state.memoria = await obtenerMemoria(_state.familiaID, supermercado.id);
-    setContexto({ superID: supermercado.id, pasillos: supermercado.pasillos });
+    setContexto({ superID: supermercado.id, pasillos: supermercado.pasillos, superNombre: supermercado.nombre });
     document.querySelector('.titulo-super').textContent = supermercado.nombre;
     _renderizarBarraAccion();
     _actualizarVista();
