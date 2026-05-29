@@ -511,3 +511,423 @@ body.dark-mode .logo-header {
         scroll-margin-top: 350px; 
     }
 }
+
+
+/* ─── AUTH SCREENS ─────────────────────────────────────────────────────────── */
+
+.auth-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+}
+
+.auth-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 32px 28px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.auth-logo {
+    height: 50px;
+    width: auto;
+    margin: 0 auto 4px;
+    background: #008000;
+    padding: 8px 16px;
+    border-radius: 12px;
+}
+
+.auth-card h2 {
+    text-align: center;
+    color: #1a4314;
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+.auth-subtitle {
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.auth-card input[type="email"],
+.auth-card input[type="password"],
+.auth-card input[type="text"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid #ddd;
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.auth-card input:focus {
+    border-color: #008000;
+}
+
+.btn-auth {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-auth:active { transform: scale(0.98); }
+
+.btn-google {
+    background: #fff;
+    border: 1.5px solid #ddd;
+    color: #333;
+}
+.btn-google:hover { background: #f5f5f5; }
+
+.btn-primary {
+    background: #008000;
+    color: white;
+}
+.btn-primary:hover { background: #006600; }
+
+.btn-secondary {
+    background: #e8f5e9;
+    color: #1a4314;
+    border: 1.5px solid #008000;
+}
+.btn-secondary:hover { background: #c8e6c9; }
+
+.btn-link {
+    background: transparent;
+    color: #008000;
+    font-weight: 400;
+    font-size: 0.9rem;
+    text-decoration: underline;
+    padding: 4px;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #aaa;
+    font-size: 0.85rem;
+}
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #eee;
+}
+
+.auth-error {
+    color: #c62828;
+    font-size: 0.85rem;
+    text-align: center;
+    min-height: 1.2em;
+    margin: 0;
+}
+
+/* Pantalla del código */
+.auth-card--codigo {
+    text-align: center;
+}
+.codigo-icono {
+    font-size: 3rem;
+    text-align: center;
+}
+.codigo-display {
+    font-size: 2.2rem;
+    letter-spacing: 8px;
+    font-weight: 800;
+    color: #1a4314;
+    background: #e8f5e9;
+    border-radius: 12px;
+    padding: 14px;
+    margin: 8px 0;
+}
+.btn-copiar {
+    font-size: 0.9rem;
+}
+
+/* Opción de menú peligrosa */
+.opcion-menu--danger {
+    color: #c62828;
+    border-top: 1px solid #eee;
+    margin-top: 4px;
+    padding-top: 8px;
+}
+.opcion-menu--codigo {
+    color: #1a4314;
+}
+
+/* Dark mode auth */
+body.dark-mode .auth-card {
+    background: #1e2a1e;
+    color: #e0e0e0;
+}
+body.dark-mode .auth-card h2 {
+    color: #90ee90;
+}
+body.dark-mode .auth-card input {
+    background: #2a3a2a;
+    border-color: #3a5a3a;
+    color: #e0e0e0;
+}
+body.dark-mode .btn-google {
+    background: #2a3a2a;
+    border-color: #3a5a3a;
+    color: #e0e0e0;
+}
+body.dark-mode .auth-divider {
+    color: #555;
+}
+body.dark-mode .auth-divider::before,
+body.dark-mode .auth-divider::after {
+    background: #3a5a3a;
+}
+
+/* ─── BARRA DE ACCIÓN FLOTANTE ─────────────────────────────────────────────── */
+
+#barra-accion {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid #e0e0e0;
+    z-index: 200;
+    display: flex;
+    justify-content: center;
+}
+
+.btn-accion {
+    width: 100%;
+    max-width: 400px;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.2s;
+}
+.btn-accion:active { transform: scale(0.97); }
+
+.btn-accion--primary {
+    background: #008000;
+    color: white;
+    box-shadow: 0 4px 16px rgba(0,128,0,0.35);
+}
+.btn-accion--secondary {
+    background: #e8f5e9;
+    color: #1a4314;
+    border: 1.5px solid #008000;
+}
+
+body.dark-mode #barra-accion {
+    background: rgba(20,30,20,0.95);
+    border-top-color: #3a5a3a;
+}
+body.dark-mode .btn-accion--secondary {
+    background: #2a3a2a;
+    color: #90ee90;
+}
+
+/* ─── LISTA GLOBAL ─────────────────────────────────────────────────────────── */
+
+.editor-global {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    background: white;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.editor-global input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1.5px solid #ddd;
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
+}
+.editor-global input:focus { border-color: #008000; }
+.editor-global button {
+    padding: 10px 18px;
+    background: #008000;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.lista-global-container {
+    padding: 8px 0;
+}
+
+.lista-vacia {
+    text-align: center;
+    padding: 60px 24px;
+    color: #888;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+body.dark-mode .editor-global {
+    background: #1a2a1a;
+    border-bottom-color: #3a5a3a;
+}
+body.dark-mode .editor-global input {
+    background: #2a3a2a;
+    border-color: #3a5a3a;
+    color: #e0e0e0;
+}
+
+/* ─── MODO COMPRA ──────────────────────────────────────────────────────────── */
+
+.banner-super-activo {
+    background: #1a4314;
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+}
+
+.pasillo--sin-asignar .pasillo-header--alerta {
+    background: #fff3e0;
+    color: #e65100;
+}
+.sin-asignar-hint {
+    font-size: 0.82rem;
+    color: #888;
+    padding: 6px 14px 0;
+    font-style: italic;
+}
+
+.pasillo--comprados .pasillo-header--comprados {
+    background: #e8f5e9;
+    cursor: pointer;
+}
+.lista-comprados.oculta { display: none; }
+
+/* Modal asignar pasillo */
+.lista-pasillos-opciones {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+    max-height: 50vh;
+    overflow-y: auto;
+}
+.btn-pasillo-opcion {
+    width: 100%;
+    padding: 11px 14px;
+    background: #f0f8f0;
+    border: 1.5px solid #c8e6c9;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.95rem;
+    transition: background 0.15s;
+}
+.btn-pasillo-opcion:hover { background: #c8e6c9; }
+
+body.dark-mode .pasillo--sin-asignar .pasillo-header--alerta {
+    background: #3a2800;
+    color: #ffb74d;
+}
+body.dark-mode .pasillo--comprados .pasillo-header--comprados {
+    background: #1a2a1a;
+}
+body.dark-mode .btn-pasillo-opcion {
+    background: #2a3a2a;
+    border-color: #3a5a3a;
+    color: #e0e0e0;
+}
+
+/* GESTOR DE SUPERMERCADOS */
+.gestor-card { max-width: 440px; }
+
+.gestor-lista { display: flex; flex-direction: column; gap: 8px; max-height: 40vh; overflow-y: auto; }
+.gestor-super-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; background: #f9f9f9;
+    border: 1px solid #eee; border-radius: 10px;
+}
+.gestor-super-icono { font-size: 1.4rem; }
+.gestor-super-nombre { flex: 1; font-weight: 600; }
+.gestor-super-acciones { display: flex; gap: 6px; }
+.btn-gestor-editar, .btn-gestor-borrar {
+    padding: 5px 10px; border: none; border-radius: 7px;
+    cursor: pointer; font-size: 0.85rem; font-weight: 600;
+}
+.btn-gestor-editar { background: #e8f5e9; color: #1a4314; }
+.btn-gestor-borrar { background: #ffebee; color: #c62828; }
+.gestor-vacio { text-align: center; color: #888; padding: 16px 0; }
+
+.gestor-label { font-size: 0.85rem; font-weight: 600; color: #555; margin-top: 4px; }
+.gestor-input {
+    width: 100%; padding: 10px 14px;
+    border: 1.5px solid #ddd; border-radius: 10px;
+    font-size: 1rem; outline: none;
+}
+.gestor-input:focus { border-color: #008000; }
+
+.gestor-iconos-grid {
+    display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 0;
+}
+.btn-icono {
+    width: 38px; height: 38px; font-size: 1.3rem;
+    border: 2px solid #eee; border-radius: 8px;
+    background: #f5f5f5; cursor: pointer; transition: all 0.15s;
+}
+.btn-icono--sm { width: 32px; height: 32px; font-size: 1.1rem; }
+.btn-icono.activo { border-color: #008000; background: #e8f5e9; transform: scale(1.1); }
+
+.editor-pasillo-item {
+    background: #f5f5f5; border-radius: 10px;
+    padding: 10px; margin-bottom: 8px;
+    border: 1px solid #e0e0e0;
+}
+.editor-pasillo-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.editor-pasillo-row .gestor-input { flex: 1; }
+.btn-borrar-pasillo {
+    padding: 6px 10px; background: #ffebee; color: #c62828;
+    border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
+}
+
+/* Dark mode gestor */
+body.dark-mode .gestor-super-item { background: #2a3a2a; border-color: #3a5a3a; }
+body.dark-mode .gestor-label { color: #aaa; }
+body.dark-mode .gestor-input { background: #2a3a2a; border-color: #3a5a3a; color: #e0e0e0; }
+body.dark-mode .btn-icono { background: #2a3a2a; border-color: #3a5a3a; }
+body.dark-mode .btn-icono.activo { background: #1a4314; border-color: #90ee90; }
+body.dark-mode .editor-pasillo-item { background: #243024; border-color: #3a5a3a; }
