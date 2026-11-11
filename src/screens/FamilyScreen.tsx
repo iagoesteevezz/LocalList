@@ -6,16 +6,19 @@ import { useMembers } from '../data/useMembers';
 import type { Family } from '../data/useSession';
 import { formatInviteCode, inviteLink } from '../domain/invite';
 import { useDockHeight } from '../lib/useViewportVars';
+import type { Store } from '../domain/types';
 import { Sheet } from '../ui/Sheet';
+import { StoresSection } from './stores/StoresSection';
 
 interface Props {
   uid: string;
   family: Family;
+  stores: readonly Store[];
   toastView: ReactNode;
   tabBar: ReactNode;
 }
 
-export function FamilyScreen({ uid, family, toastView, tabBar }: Props) {
+export function FamilyScreen({ uid, family, stores, toastView, tabBar }: Props) {
   const members = useMembers(family.id);
   const [confirmLeave, setConfirmLeave] = useState(false);
   const dock = useRef<HTMLDivElement>(null);
@@ -32,8 +35,8 @@ export function FamilyScreen({ uid, family, toastView, tabBar }: Props) {
       <main className="content">
         <section className="section" aria-labelledby="miembros">
           <h2 id="miembros">Quién usa la lista</h2>
-          <ul className="rows">
-            {members.map((m) => (
+          <ul className="rows" aria-busy={members === null}>
+            {(members ?? []).map((m) => (
               <li key={m.uid} className="member">
                 <strong>{m.name}</strong>
                 {m.uid === uid && <span className="muted">(tú)</span>}
@@ -42,6 +45,8 @@ export function FamilyScreen({ uid, family, toastView, tabBar }: Props) {
             ))}
           </ul>
         </section>
+
+        <StoresSection stores={stores} />
 
         <InviteSection family={family} />
 

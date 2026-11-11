@@ -8,9 +8,9 @@ export interface Member {
   role: 'owner' | 'member';
 }
 
-/** Miembros de la familia, en tiempo real. */
-export function useMembers(familyId: string): Member[] {
-  const [members, setMembers] = useState<Member[]>([]);
+/** Miembros de la familia, en tiempo real. null = aún cargando. */
+export function useMembers(familyId: string): Member[] | null {
+  const [members, setMembers] = useState<Member[] | null>(null);
 
   useEffect(() => {
     return onSnapshot(collection(db, 'families', familyId, 'members'), (snap) => {

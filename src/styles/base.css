@@ -226,6 +226,7 @@ button {
 }
 
 .field label {
+  margin: 0 4px;
   font-weight: 700;
 }
 
@@ -345,7 +346,8 @@ button {
 .tabbar {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 1fr;
+  grid-auto-columns: minmax(0, 12rem);
+  justify-content: center;
   padding-bottom: var(--safe-bottom);
   background: var(--board);
   border-top: 1px solid var(--board-deep);
@@ -891,6 +893,384 @@ button {
   font-weight: 800;
   letter-spacing: 0.12em;
   text-align: center;
+}
+
+/* ─── Supermercados ───────────────────────────────────────────────────── */
+
+.board-header__row--nav {
+  justify-content: flex-start;
+  align-items: center;
+  margin-left: -10px;
+}
+
+.icon-btn--board {
+  color: var(--on-board);
+}
+
+.icon-btn--board:active {
+  background: var(--board-deep);
+}
+
+.icon-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.section__hint {
+  margin: 0 4px 12px;
+}
+
+.section__action {
+  margin-top: 12px;
+}
+
+.row__link {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 14px;
+  min-height: 4rem;
+  padding: 8px 14px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.row__link:active {
+  background: var(--row-pressed);
+}
+
+.row__link > .icon:first-child {
+  color: var(--ink-muted);
+}
+
+.row__link > .icon:last-child {
+  margin-left: auto;
+  color: var(--ink-muted);
+}
+
+.row__link-text {
+  display: grid;
+  gap: 2px;
+}
+
+.row__link-text .muted {
+  font-size: 0.9375rem;
+}
+
+/* Un pasillo en el editor: número de tiza, nombre a todo el ancho;
+   debajo, qué hay y las flechas para cambiar el orden. */
+.aisle {
+  display: grid;
+  grid-template-columns: 2.25rem 1fr auto;
+  grid-template-areas:
+    'num name name'
+    'num cats move';
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 4px;
+  padding: 12px 8px 8px 12px;
+}
+
+.aisle + .aisle {
+  border-top: 1px solid var(--line);
+}
+
+.aisle__num {
+  grid-area: num;
+  align-self: start;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-top: 0.4rem;
+  border-radius: 50%;
+  background: var(--board);
+  color: var(--on-board);
+  font-weight: 800;
+}
+
+.aisle__main {
+  display: contents;
+}
+
+.aisle__name {
+  grid-area: name;
+  min-height: 3rem;
+  font-weight: 700;
+}
+
+.aisle__cats {
+  grid-area: cats;
+  min-height: 2.75rem;
+  padding: 4px 2px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-muted);
+  font-size: 0.9375rem;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.aisle__move {
+  grid-area: move;
+  display: flex;
+}
+
+.notice {
+  margin: 16px 0 0;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--row);
+  box-shadow: inset 0 0 0 2px var(--chalk-yellow);
+}
+
+.override {
+  justify-content: space-between;
+  padding-left: 14px;
+}
+
+.override__text {
+  display: grid;
+  gap: 2px;
+  padding: 8px 0;
+}
+
+.savebar {
+  padding: 10px var(--gutter) calc(var(--safe-bottom) + 10px);
+  background: var(--ground);
+  border-top: 1px solid var(--line);
+}
+
+.checks {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.checks legend {
+  margin-bottom: 8px;
+  padding: 0;
+  font-weight: 700;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 3rem;
+  cursor: pointer;
+}
+
+.check input {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+  accent-color: var(--board);
+}
+
+.check__hint {
+  font-size: 0.9375rem;
+}
+
+/* ─── Modo compra ─────────────────────────────────────────────────────── */
+
+.board-header--shop {
+  padding-bottom: 6px;
+}
+
+.board-header__store {
+  font-size: 1.25rem;
+}
+
+.board-header__switch {
+  flex: none;
+  min-height: 2.5rem;
+  padding: 0 14px;
+  background: transparent;
+  color: var(--on-board);
+  box-shadow: inset 0 0 0 2px var(--on-board-muted);
+  font-size: 0.9375rem;
+}
+
+.board-header__left {
+  max-width: 640px;
+  margin: 2px auto 0;
+  color: var(--on-board-muted);
+  font-weight: 600;
+}
+
+.board-header__left strong {
+  color: var(--chalk-yellow);
+  font-size: 1.25rem;
+}
+
+/* Firma de la fase 6: el recorrido en tiza. Paradas numeradas unidas por una línea. */
+.route {
+  max-width: 640px;
+  margin: 10px auto 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+
+.route::-webkit-scrollbar {
+  display: none;
+}
+
+.route__list {
+  display: flex;
+  margin: 0;
+  padding: 4px 2px 8px;
+  list-style: none;
+}
+
+.route__stop {
+  position: relative;
+  flex: none;
+  padding-right: 14px;
+}
+
+/* La línea de tiza hasta la siguiente parada. */
+.route__stop:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 2.75rem;
+  right: 0;
+  height: 2px;
+  margin-top: -1px;
+  border-radius: 2px;
+  background: var(--on-board-muted);
+  opacity: 0.55;
+}
+
+.route__stop button {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 2.5px solid var(--on-board);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--on-board);
+  font-size: 1.0625rem;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 160ms var(--ease-out);
+}
+
+.route__stop button:active {
+  transform: scale(0.92);
+}
+
+.route__stop--next button {
+  border-color: var(--chalk-yellow);
+  background: var(--chalk-yellow);
+  color: #13201a;
+  box-shadow: 0 0 0 4px rgb(242 212 92 / 0.25);
+}
+
+.route__stop--done button {
+  border-color: var(--on-board-muted);
+  background: var(--on-board-muted);
+  color: var(--board);
+}
+
+.route__stop--done .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  stroke-width: 3;
+}
+
+.route__stop--empty button {
+  border-style: dashed;
+  border-color: var(--on-board-muted);
+  color: var(--on-board-muted);
+  opacity: 0.55;
+  cursor: default;
+}
+
+.route__stop--unplaced button {
+  border-style: dashed;
+  border-color: var(--chalk-yellow);
+  color: var(--chalk-yellow);
+}
+
+/* Al saltar a un pasillo, que no quede debajo de la cabecera fija. */
+.aisle-group {
+  scroll-margin-top: calc(var(--header-h, 0px) + 8px);
+}
+
+.aisle-group__title > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.aisle-group__num {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--board);
+  color: var(--on-board);
+  font-size: 0.9375rem;
+}
+
+/* Sin pasillo en este súper: la marca es discontinua. */
+.row--unplaced .mark {
+  border-style: dashed;
+}
+
+.all-done {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: var(--radius);
+  background: var(--row);
+  text-align: center;
+}
+
+.all-done .icon {
+  color: var(--ink-muted);
+}
+
+.all-done p {
+  margin: 0;
+  max-width: 28ch;
+  font-weight: 600;
+}
+
+.picker {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.picker__store {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.empty__action {
+  margin-top: 16px;
+}
+
+.empty .btn {
+  max-width: 360px;
+  text-decoration: none;
 }
 
 /* Aviso de versión nueva: arriba, para no tapar el campo de añadir. */

@@ -82,3 +82,51 @@ export const CloudOffIcon = (p: IconProps) => (
     <path d="M3 3l18 18" />
   </Icon>
 );
+
+export const ChevronUpIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M6 15l6-6 6 6" />
+  </Icon>
+);
+
+export const ChevronDownIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M6 9l6 6 6-6" />
+  </Icon>
+);
+
+export const ChevronRightIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M9 6l6 6-6 6" />
+  </Icon>
+);
+
+export const BackIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M15 5l-7 7 7 7" />
+  </Icon>
+);
+
+export const TrashIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l.9 12.1a1.5 1.5 0 0 0 1.5 1.4h6.2a1.5 1.5 0 0 0 1.5-1.4L17.5 7" />
+    <path d="M10 11v6M14 11v6" />
+  </Icon>
+);
+
+/** Tienda: toldo y mostrador. */
+export const StoreIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 9.5L5.5 4h13L20 9.5" />
+    <path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0" />
+    <path d="M5.5 12v8h13v-8M10 20v-4.5h4V20" />
+  </Icon>
+);
+
+/** Sin pasillo: interrogación dibujada (no un carácter de texto). */
+export const UnplacedIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M9 9.2a3 3 0 1 1 4.4 2.7c-.9.5-1.4 1.2-1.4 2.2v.4" />
+    <circle cx="12" cy="18" r="1.1" fill="currentColor" stroke="none" />
+  </Icon>
+);

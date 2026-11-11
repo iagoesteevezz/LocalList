@@ -2,7 +2,7 @@
 
 import { useId } from 'react';
 import { CATEGORIES, isCategoryId } from '../../domain/categories';
-import type { Item } from '../../domain/types';
+import type { Aisle, Item } from '../../domain/types';
 import { MinusIcon, PlusIcon } from '../../ui/icons';
 import { Sheet } from '../../ui/Sheet';
 
@@ -12,10 +12,18 @@ interface Props {
   onQty: (qty: number) => void;
   onCategory: (category: Item['category']) => void;
   onRemove: () => void;
+  /** Solo en el modo compra: en qué pasillo está en este súper. */
+  store?: {
+    name: string;
+    aisles: readonly Aisle[];
+    currentAisleId: string | null;
+    onAisle: (aisleId: string) => void;
+  };
 }
 
-export function ItemSheet({ item, onClose, onQty, onCategory, onRemove }: Props) {
+export function ItemSheet({ item, onClose, onQty, onCategory, onRemove, store }: Props) {
   const categoryId = useId();
+  const aisleId = useId();
 
   return (
     <Sheet open={item !== null} onClose={onClose} title={item?.name ?? ''}>
@@ -37,6 +45,29 @@ export function ItemSheet({ item, onClose, onQty, onCategory, onRemove }: Props)
               </button>
             </div>
           </div>
+
+          {store && (
+            <div className="field">
+              <label htmlFor={aisleId}>Pasillo en {store.name}</label>
+              <select
+                id={aisleId}
+                className="select"
+                value={store.currentAisleId ?? ''}
+                onChange={(e) => e.target.value && store.onAisle(e.target.value)}
+              >
+                {store.currentAisleId === null && (
+                  <option value="" disabled>
+                    Sin pasillo: elige dónde está
+                  </option>
+                )}
+                {store.aisles.map((a, i) => (
+                  <option key={a.id} value={a.id}>
+                    {i + 1} · {a.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="field">
             <label htmlFor={categoryId}>Sección</label>

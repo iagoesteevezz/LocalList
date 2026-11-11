@@ -28,19 +28,24 @@ export function useKeyboardInset() {
   }, []);
 }
 
-/** Mide lo fijado abajo y lo expone como --dock-h, para que el contenido no quede debajo. */
-export function useDockHeight(ref: RefObject<HTMLElement | null>) {
+/** Mide un elemento y expone su alto como variable CSS (p. ej. --dock-h, --header-h). */
+export function useHeightVar(ref: RefObject<HTMLElement | null>, cssVar: string) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const root = document.documentElement;
     const observer = new ResizeObserver(() => {
-      root.style.setProperty('--dock-h', `${Math.ceil(el.getBoundingClientRect().height)}px`);
+      root.style.setProperty(cssVar, `${Math.ceil(el.getBoundingClientRect().height)}px`);
     });
     observer.observe(el);
     return () => {
       observer.disconnect();
-      root.style.removeProperty('--dock-h');
+      root.style.removeProperty(cssVar);
     };
-  }, [ref]);
+  }, [ref, cssVar]);
+}
+
+/** Mide lo fijado abajo y lo expone como --dock-h, para que el contenido no quede debajo. */
+export function useDockHeight(ref: RefObject<HTMLElement | null>) {
+  useHeightVar(ref, '--dock-h');
 }

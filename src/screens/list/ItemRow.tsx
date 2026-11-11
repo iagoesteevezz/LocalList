@@ -14,9 +14,11 @@ interface Props {
   item: Item;
   onSetDone: (done: boolean) => void;
   onOpen: () => void;
+  /** Modo compra: no tiene pasillo en este súper (marca discontinua). */
+  unplaced?: boolean;
 }
 
-export function ItemRow({ item, onSetDone, onOpen }: Props) {
+export function ItemRow({ item, onSetDone, onOpen, unplaced = false }: Props) {
   const reduced = usePrefersReducedMotion();
   const [striking, setStriking] = useState(false);
   const timer = useRef<number | undefined>(undefined);
@@ -24,11 +26,14 @@ export function ItemRow({ item, onSetDone, onOpen }: Props) {
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   function toggle() {
-    if (striking) return;
     if (item.done) {
+      // En el modo compra la fila no se vuelve a montar al marcarla:
+      // hay que soltar el estado del tachado para poder desmarcar.
+      setStriking(false);
       onSetDone(false);
       return;
     }
+    if (striking) return; // ya se está tachando: ignora el doble toque
     if (reduced) {
       onSetDone(true);
       return;
@@ -42,14 +47,16 @@ export function ItemRow({ item, onSetDone, onOpen }: Props) {
   const crossed = item.done || striking;
 
   return (
-    <li className={crossed ? 'row row--done' : 'row'}>
+    <li className={['row', crossed && 'row--done', unplaced && 'row--unplaced'].filter(Boolean).join(' ')}>
       <button type="button" className="row__toggle" onClick={toggle} aria-pressed={item.done}>
         <span className="mark" aria-hidden="true">
           {crossed && <CheckIcon />}
         </span>
         <span className="row__name">
           {item.name}
-          {crossed && <ChalkStrike drawing={striking} />}
+          {/* Solo se anima mientras se tacha. Ya guardado, el trazo es fijo: mover la fila
+              en el DOM reiniciaría la animación y el tachado se vería a medias. */}
+          {crossed && <ChalkStrike drawing={striking && !item.done} />}
         </span>
         <span className="visually-hidden">{item.done ? ', en el carro' : ''}</span>
         {item.qty > 1 && (

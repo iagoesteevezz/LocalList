@@ -13,15 +13,15 @@ export type StoreTemplate = Omit<Store, 'id'>;
  */
 export const MERCADONA_MELENARA: StoreTemplate = {
   name: 'Mercadona Cruce de Melenara',
-  icon: '🛒',
+  icon: 'cart',
   aisles: [
-    { id: 'p1', name: 'Fruta, verdura y congelados', icon: '🍎', categories: ['frutas_verduras', 'congelados'] },
-    { id: 'p2', name: 'Carne, embutido, arroz y latas', icon: '🥩', categories: ['carne', 'pescado', 'charcuteria', 'despensa'] },
-    { id: 'p3', name: 'Salsas, pasta y frutos secos', icon: '🍝', categories: ['pasta_salsas'] },
-    { id: 'p4', name: 'Nevera y bebidas', icon: '🥛', categories: ['lacteos_huevos', 'bebidas'] },
-    { id: 'p5', name: 'Precocinados y papas', icon: '🍕', categories: ['precocinados', 'snacks'] },
-    { id: 'p6', name: 'Cereales, leche y cuidado personal', icon: '🥣', categories: ['desayuno', 'higiene'] },
-    { id: 'p7', name: 'Pan, galletas, café y limpieza', icon: '🍞', categories: ['panaderia', 'limpieza', 'mascotas'] },
+    { id: 'p1', name: 'Fruta, verdura y congelados', categories: ['frutas_verduras', 'congelados'] },
+    { id: 'p2', name: 'Carne, embutido, arroz y latas', categories: ['carne', 'pescado', 'charcuteria', 'despensa'] },
+    { id: 'p3', name: 'Salsas, pasta y frutos secos', categories: ['pasta_salsas'] },
+    { id: 'p4', name: 'Nevera y bebidas', categories: ['lacteos_huevos', 'bebidas'] },
+    { id: 'p5', name: 'Precocinados y papas', categories: ['precocinados', 'snacks'] },
+    { id: 'p6', name: 'Cereales, leche y cuidado personal', categories: ['desayuno', 'higiene'] },
+    { id: 'p7', name: 'Pan, galletas, café y limpieza', categories: ['panaderia', 'limpieza', 'mascotas'] },
   ],
   // Lo que en este súper no está donde diría su categoría.
   overrides: {

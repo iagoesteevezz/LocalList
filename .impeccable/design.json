@@ -1,0 +1,507 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-11T23:08:37+00:00",
+  "title": "Design System: LocaLisT",
+  "extensions": {
+    "colorMeta": {
+      "board": {
+        "role": "primary",
+        "displayName": "Verde pizarra",
+        "canonical": "#1f3a2d",
+        "tonalRamp": [
+          "#0c1712",
+          "#13231b",
+          "#192e24",
+          "#1f3a2d",
+          "#576b62",
+          "#8f9c96",
+          "#bcc4c0",
+          "#e4e7e6"
+        ]
+      },
+      "board-deep": {
+        "role": "primary",
+        "displayName": "Pizarra honda",
+        "canonical": "#16291f",
+        "tonalRamp": [
+          "#09100c",
+          "#0d1913",
+          "#122119",
+          "#16291f",
+          "#505e57",
+          "#8a948f",
+          "#b9bfbc",
+          "#e3e5e4"
+        ]
+      },
+      "chalk": {
+        "role": "neutral",
+        "displayName": "Tiza",
+        "canonical": "#f3f1e7",
+        "tonalRamp": [
+          "#61605c",
+          "#92918b",
+          "#c2c1b9",
+          "#f3f1e7",
+          "#f6f4ed",
+          "#f9f8f3",
+          "#fbfbf8",
+          "#fefdfc"
+        ]
+      },
+      "chalk-muted": {
+        "role": "neutral",
+        "displayName": "Tiza gastada",
+        "canonical": "#bccabe",
+        "tonalRamp": [
+          "#4b514c",
+          "#717972",
+          "#96a298",
+          "#bccabe",
+          "#cdd7ce",
+          "#dee4de",
+          "#ebefec",
+          "#f7f9f7"
+        ]
+      },
+      "chalk-yellow": {
+        "role": "primary",
+        "displayName": "Amarillo tiza",
+        "canonical": "#f2d45c",
+        "tonalRamp": [
+          "#615525",
+          "#917f37",
+          "#c2aa4a",
+          "#f2d45c",
+          "#f5df85",
+          "#f8eaae",
+          "#fbf2ce",
+          "#fdfaeb"
+        ]
+      },
+      "chalk-dust": {
+        "role": "neutral",
+        "displayName": "Polvo de tiza",
+        "canonical": "#e9eee9",
+        "tonalRamp": [
+          "#5d5f5d",
+          "#8c8f8c",
+          "#babeba",
+          "#e9eee9",
+          "#eef2ee",
+          "#f4f6f4",
+          "#f8faf8",
+          "#fcfdfc"
+        ]
+      },
+      "row": {
+        "role": "neutral",
+        "displayName": "Papel",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#666666",
+          "#999999",
+          "#cccccc",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff"
+        ]
+      },
+      "row-pressed": {
+        "role": "neutral",
+        "displayName": "Papel pulsado",
+        "canonical": "#f1f5f1",
+        "tonalRamp": [
+          "#606260",
+          "#919391",
+          "#c1c4c1",
+          "#f1f5f1",
+          "#f4f8f4",
+          "#f8faf8",
+          "#fbfcfb",
+          "#fdfefd"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "#13201a",
+        "tonalRamp": [
+          "#080d0a",
+          "#0b1310",
+          "#0f1a15",
+          "#13201a",
+          "#4e5853",
+          "#89908c",
+          "#b8bcba",
+          "#e3e4e4"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Tinta suave",
+        "canonical": "#3f5247",
+        "tonalRamp": [
+          "#19211c",
+          "#26312b",
+          "#324239",
+          "#3f5247",
+          "#6f7d75",
+          "#9fa8a3",
+          "#c5cbc8",
+          "#e8eae9"
+        ]
+      },
+      "done-ink": {
+        "role": "neutral",
+        "displayName": "Tinta tachada",
+        "canonical": "#56685c",
+        "tonalRamp": [
+          "#222a25",
+          "#343e37",
+          "#45534a",
+          "#56685c",
+          "#808e85",
+          "#aab4ae",
+          "#ccd2ce",
+          "#ebedeb"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Raya",
+        "canonical": "#cad5cc",
+        "tonalRamp": [
+          "#515552",
+          "#79807a",
+          "#a2aaa3",
+          "#cad5cc",
+          "#d7e0d9",
+          "#e4eae6",
+          "#eff2f0",
+          "#f9faf9"
+        ]
+      },
+      "danger": {
+        "role": "error",
+        "displayName": "Rojo de aviso",
+        "canonical": "#a3261d",
+        "tonalRamp": [
+          "#410f0c",
+          "#621711",
+          "#821e17",
+          "#a3261d",
+          "#ba5c56",
+          "#d1928e",
+          "#e3bebb",
+          "#f4e5e4"
+        ]
+      },
+      "board-night": {
+        "role": "primary",
+        "displayName": "Pizarra (oscuro)",
+        "canonical": "#10201a",
+        "tonalRamp": [
+          "#060d0a",
+          "#0a1310",
+          "#0d1a15",
+          "#10201a",
+          "#4c5853",
+          "#88908c",
+          "#b7bcba",
+          "#e2e4e4"
+        ]
+      },
+      "board-night-deep": {
+        "role": "primary",
+        "displayName": "Pizarra honda (oscuro)",
+        "canonical": "#0b1712",
+        "tonalRamp": [
+          "#040907",
+          "#070e0b",
+          "#09120e",
+          "#0b1712",
+          "#48514d",
+          "#858b88",
+          "#b6b9b8",
+          "#e2e3e3"
+        ]
+      },
+      "ground-night": {
+        "role": "neutral",
+        "displayName": "Fondo pizarra (oscuro)",
+        "canonical": "#16261e",
+        "tonalRamp": [
+          "#090f0c",
+          "#0d1712",
+          "#121e18",
+          "#16261e",
+          "#505c56",
+          "#8a928e",
+          "#b9bebc",
+          "#e3e5e4"
+        ]
+      },
+      "row-night": {
+        "role": "neutral",
+        "displayName": "Fila (oscuro)",
+        "canonical": "#1d3027",
+        "tonalRamp": [
+          "#0c1310",
+          "#111d17",
+          "#17261f",
+          "#1d3027",
+          "#56645d",
+          "#8e9893",
+          "#bbc1be",
+          "#e4e6e5"
+        ]
+      },
+      "row-night-pressed": {
+        "role": "neutral",
+        "displayName": "Fila pulsada (oscuro)",
+        "canonical": "#243a2f",
+        "tonalRamp": [
+          "#0e1713",
+          "#16231c",
+          "#1d2e26",
+          "#243a2f",
+          "#5b6b63",
+          "#929c97",
+          "#bdc4c1",
+          "#e5e7e6"
+        ]
+      },
+      "done-ink-night": {
+        "role": "neutral",
+        "displayName": "Tiza tachada (oscuro)",
+        "canonical": "#95a99b",
+        "tonalRamp": [
+          "#3c443e",
+          "#59655d",
+          "#77877c",
+          "#95a99b",
+          "#b0beb4",
+          "#cad4cd",
+          "#dfe5e1",
+          "#f2f5f3"
+        ]
+      },
+      "line-night": {
+        "role": "neutral",
+        "displayName": "Raya (oscuro)",
+        "canonical": "#2f4639",
+        "tonalRamp": [
+          "#131c17",
+          "#1c2a22",
+          "#26382e",
+          "#2f4639",
+          "#63746a",
+          "#97a29c",
+          "#c1c8c4",
+          "#e6e9e7"
+        ]
+      },
+      "danger-night": {
+        "role": "error",
+        "displayName": "Rojo de aviso (oscuro)",
+        "canonical": "#ffb4a9",
+        "tonalRamp": [
+          "#664844",
+          "#996c65",
+          "#cc9087",
+          "#ffb4a9",
+          "#ffc7be",
+          "#ffdad4",
+          "#ffe8e5",
+          "#fff6f5"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Solo el nombre de la app en la bienvenida."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Título de la cabecera de pizarra."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Títulos de sección y de pasillo."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Nombres de producto y texto de trabajo."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Etiquetas de pestaña y recuentos tabulares."
+      }
+    },
+    "shadows": [
+      {
+        "name": "rows-rest",
+        "value": "0 1px 2px rgb(19 32 26 / 0.06), 0 2px 8px rgb(19 32 26 / 0.04)",
+        "purpose": "Separa los bloques de filas del polvo de tiza."
+      },
+      {
+        "name": "floating",
+        "value": "0 8px 24px rgb(0 0 0 / 0.25)",
+        "purpose": "Avisos que flotan sobre el contenido."
+      },
+      {
+        "name": "next-stop-halo",
+        "value": "0 0 0 4px rgb(242 212 92 / 0.25)",
+        "purpose": "Halo de la siguiente parada del recorrido."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Entradas de avisos y hojas, pulsaciones."
+      },
+      {
+        "name": "chalk-strike",
+        "value": "360ms ease-out (stroke-dashoffset 1→0)",
+        "purpose": "Tachado de tiza al coger un producto; después queda fijo."
+      },
+      {
+        "name": "press",
+        "value": "scale(0.97) 120ms",
+        "purpose": "Respuesta táctil de los botones."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "content-max",
+        "value": "640px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Acción principal: pizarra con texto tiza.",
+      "html": "<button class=\"ds-btn\">Guardar</button>",
+      "css": ".ds-btn{min-height:3.25rem;padding:0 20px;border:0;border-radius:14px;background:#1f3a2d;color:#f3f1e7;font:700 1.125rem ui-rounded,system-ui,sans-serif;cursor:pointer;transition:transform 120ms cubic-bezier(.16,1,.3,1)}.ds-btn:active{transform:scale(.97)}.ds-btn:focus-visible{outline:3px solid #1f3a2d;outline-offset:2px}"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Acción secundaria.",
+      "html": "<button class=\"ds-btn-outline\">Terminar compra</button>",
+      "css": ".ds-btn-outline{min-height:3.25rem;padding:0 20px;border:0;border-radius:14px;background:transparent;color:#13201a;box-shadow:inset 0 0 0 2px #cad5cc;font:700 1.125rem ui-rounded,system-ui,sans-serif;cursor:pointer}.ds-btn-outline:active{transform:scale(.97)}.ds-btn-outline:focus-visible{outline:3px solid #1f3a2d;outline-offset:2px}"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Quitar o salir; siempre con confirmación o Deshacer.",
+      "html": "<button class=\"ds-btn-danger\">Quitar de la lista</button>",
+      "css": ".ds-btn-danger{min-height:3.25rem;padding:0 20px;border:0;border-radius:14px;background:transparent;color:#a3261d;box-shadow:inset 0 0 0 2px currentColor;font:700 1.125rem ui-rounded,system-ui,sans-serif;cursor:pointer}.ds-btn-danger:focus-visible{outline:3px solid #1f3a2d;outline-offset:2px}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campo de texto; 1.125rem para que iOS no haga zoom.",
+      "html": "<input class=\"ds-input\" placeholder=\"Apunta lo que falte…\">",
+      "css": ".ds-input{min-height:3.25rem;padding:0 14px;border:2px solid #cad5cc;border-radius:14px;background:#fff;color:#13201a;font:500 1.125rem ui-rounded,system-ui,sans-serif}.ds-input::placeholder{color:#3f5247}.ds-input:focus-visible{outline:none;border-color:#1f3a2d}"
+    },
+    {
+      "name": "List Row",
+      "kind": "custom",
+      "refersTo": "list-row",
+      "description": "Fila de producto: marca + nombre; con el tachado de tiza cuando está en el carro.",
+      "html": "<ul class=\"ds-rows\"><li class=\"ds-row\"><span class=\"ds-mark\"></span>Atún en lata</li><li class=\"ds-row ds-done\"><span class=\"ds-mark\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></svg></span><span class=\"ds-name\">Plátanos<svg viewBox=\"0 0 100 14\" preserveAspectRatio=\"none\"><path d=\"M1.5 8.6C14 6.4 27 9.8 41 7.6S69 6.1 82 7.9c6.2.8 11.4.5 16.5-.9\"/></svg></span></li></ul>",
+      "css": ".ds-rows{list-style:none;margin:0;padding:0;border-radius:14px;background:#fff;overflow:hidden;font:600 1.125rem ui-rounded,system-ui,sans-serif;color:#13201a}.ds-row{display:flex;align-items:center;gap:14px;min-height:3.5rem;padding:0 14px}.ds-row+.ds-row{border-top:1px solid #cad5cc}.ds-mark{display:grid;place-items:center;width:1.75rem;height:1.75rem;border:2.5px solid #1f3a2d;border-radius:50%;color:#fff}.ds-done .ds-mark{background:#56685c;border-color:#56685c}.ds-done{color:#56685c;font-weight:500}.ds-name{position:relative}.ds-name svg{position:absolute;left:-4px;top:50%;width:calc(100% + 8px);height:14px;transform:translateY(-50%);overflow:visible}.ds-name path{fill:none;stroke:#1f3a2d;stroke-width:2.6;stroke-linecap:round}"
+    },
+    {
+      "name": "Tab Bar",
+      "kind": "nav",
+      "refersTo": "tab-bar",
+      "description": "Tres pestañas sobre la pizarra; la activa en tiza con icono amarillo.",
+      "html": "<nav class=\"ds-tabs\"><a href=\"#\">Lista</a><a href=\"#\" aria-current=\"page\">Comprar</a><a href=\"#\">Familia</a></nav>",
+      "css": ".ds-tabs{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,12rem);justify-content:center;background:#1f3a2d}.ds-tabs a{display:grid;place-items:center;min-height:3.5rem;color:#bccabe;font:700 .8125rem ui-rounded,system-ui,sans-serif;text-decoration:none}.ds-tabs a[aria-current=page]{color:#f3f1e7}.ds-tabs a:focus-visible{outline:3px solid #f2d45c;outline-offset:-3px}"
+    },
+    {
+      "name": "Route Strip",
+      "kind": "custom",
+      "refersTo": "route-stop",
+      "description": "Firma del modo compra: paradas de tiza unidas por una línea; la siguiente en amarillo tiza.",
+      "html": "<ol class=\"ds-route\"><li class=\"ds-done\">1</li><li class=\"ds-next\">2</li><li>3</li><li class=\"ds-empty\">4</li></ol>",
+      "css": ".ds-route{display:flex;gap:14px;margin:0;padding:12px;list-style:none;background:#1f3a2d}.ds-route li{display:grid;place-items:center;width:2.75rem;height:2.75rem;border:2.5px solid #f3f1e7;border-radius:50%;color:#f3f1e7;font:800 1.0625rem ui-rounded,system-ui,sans-serif}.ds-route .ds-next{background:#f2d45c;border-color:#f2d45c;color:#13201a;box-shadow:0 0 0 4px rgb(242 212 92 / .25)}.ds-route .ds-done{background:#bccabe;border-color:#bccabe;color:#1f3a2d}.ds-route .ds-empty{border-style:dashed;border-color:#bccabe;color:#bccabe;opacity:.55}"
+    }
+  ],
+  "narrative": {
+    "northStar": "La pizarra de Vegueta",
+    "overview": "La lista es la pizarra de un puesto del Mercado de Vegueta: un tablero verde, palabras en tiza y, cuando algo se coge, un trazo a mano que lo tacha. El mundo entra en la app por cuatro sitios y solo por ellos: la paleta (pizarra y tiza), una sola tipografía redondeada de cartel, la densidad generosa de un cartel que se lee de lejos, y un gesto propio, el tachado de tiza. La organización de las pantallas, la navegación y los controles son los de una app de móvil corriente; nadie debe tener que aprender nada.\n\nEstá pensada para una persona de pie en un pasillo, con el carro en una mano, gafas de cerca y luz de fluorescentes. Por eso el texto es grande por defecto, cada objetivo táctil mide al menos 48 px, lo importante vive en el tercio inferior (al alcance del pulgar) y el estado de cada producto se lee por su marca, no por su color.\n\nEn claro, la pizarra es el marco (cabecera y pestañas) y las filas son tinta sobre papel blanco encima de un fondo de polvo de tiza. En oscuro, toda la pantalla es la pizarra y el texto es tiza.",
+    "keyCharacteristics": [
+      "Pizarra verde como marco; tiza como texto sobre ella; un único amarillo tiza para \"aquí, ahora\".",
+      "Una tipografía redondeada para todo; la jerarquía sale del tamaño y el peso.",
+      "Filas de 56 px, letra base de ~19 px, objetivos de 48 px como mínimo.",
+      "El tachado de tiza es la firma: se dibuja al coger un producto.",
+      "El recorrido del súper se dibuja como paradas de tiza unidas por una línea."
+    ],
+    "rules": [
+      {
+        "name": "The One Yellow Rule",
+        "body": "El amarillo tiza solo marca lo que toca ahora (siguiente pasillo, lo pendiente, la pestaña activa, la acción del aviso). Si algo amarillo no es \"aquí, ahora\", sobra.",
+        "section": "colors"
+      },
+      {
+        "name": "The Mark Over Colour Rule",
+        "body": "El estado nunca depende solo del color: aro vacío = pendiente; aro relleno con ✓ y tachado = en el carro; aro discontinuo = sin pasillo en este súper.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Voice Rule",
+        "body": "Una sola familia tipográfica. La jerarquía se hace con tamaño y peso, nunca con una segunda fuente decorativa ni con letra \"de tiza\" que cueste leer.",
+        "section": "typography"
+      },
+      {
+        "name": "The Reading Glasses Rule",
+        "body": "Ningún texto de trabajo por debajo de 1.125rem; nada por debajo de 0.8125rem en ningún caso.",
+        "section": "typography"
+      },
+      {
+        "name": "The Thumb Zone Rule",
+        "body": "Lo que se hace a menudo (apuntar, cambiar de pestaña, terminar compra) vive en el tercio inferior. Arriba solo se lee.",
+        "section": "layout"
+      },
+      {
+        "name": "The Still Rows Rule",
+        "body": "Lo que hacen otros miembros no mueve lo que tienes bajo el dedo: las filas se ordenan por nombre y solo tu propio \"coger\" desplaza una fila.",
+        "section": "layout"
+      },
+      {
+        "name": "The Only Floaters Cast Shadows Rule",
+        "body": "Solo lo que flota sobre el contenido (avisos) proyecta una sombra clara; lo que está en su sitio apenas se despega del fondo.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do usar la pizarra (board) como marco de cada pantalla: cabecera arriba, pestañas abajo.",
+      "Do reservar el amarillo tiza para \"aquí, ahora\" (The One Yellow Rule).",
+      "Do dar a cada estado su propia marca además de su color (The Mark Over Colour Rule).",
+      "Do mantener cualquier control táctil en 48 px o más y el texto de trabajo en 1.125rem o más.",
+      "Do ofrecer Deshacer en todo lo que quita algo de la lista.",
+      "Do dibujar los iconos como SVG de 24 px con trazo de 2 px y extremos redondeados."
+    ],
+    "donts": [
+      "Don't usar texturas de tiza, letras manuscritas ni marcos de madera: el mundo está en la paleta y el gesto, no en el disfraz.",
+      "Don't usar emojis ni caracteres de texto como iconos.",
+      "Don't usar un segundo acento de color ni el amarillo como decoración.",
+      "Don't usar ventanas de `alert`/`confirm`/`prompt` del navegador: las decisiones van en hojas inferiores.",
+      "Don't dejar que lo que hacen otros miembros mueva filas bajo el dedo de quien está usando la app."
+    ]
+  }
+}
