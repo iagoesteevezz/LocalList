@@ -10,6 +10,8 @@
   --brand-contrast: #ffffff;
   --warn-bg: #fff3cd;
   --warn-text: #5c4400;
+  --border: #cfd6cf;
+  --danger: #b3261e;
 
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -30,6 +32,8 @@
     --brand-contrast: #0d1a10;
     --warn-bg: #3a2f0a;
     --warn-text: #ffe39a;
+    --border: #34463a;
+    --danger: #ffb4ab;
   }
 }
 
@@ -78,21 +82,126 @@ button.ghost {
   padding-bottom: var(--safe-bottom);
 }
 
-.placeholder {
+/* ─── Pantallas y formularios (provisional, Fase 3) ─────────────────────── */
+
+.screen {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.screen.centered {
   display: grid;
+  gap: 16px;
   place-items: center;
-  gap: 4px;
-  padding: 25vh 16px 0;
+  min-height: 60dvh;
   text-align: center;
 }
 
-.placeholder h1 {
-  margin: 12px 0 0;
+.stack {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
 }
 
-.placeholder p {
+.onboarding__header {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding-top: 8vh;
+  text-align: center;
+}
+
+.onboarding__header h1 {
+  margin: 8px 0 0;
+}
+
+h1,
+h2 {
+  line-height: 1.2;
+}
+
+h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.muted {
   margin: 0;
   color: var(--text-muted);
+}
+
+.lead {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+label {
+  font-weight: 600;
+}
+
+input {
+  font: inherit;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+input:focus-visible {
+  outline: none;
+  border-color: var(--brand);
+}
+
+.code-input {
+  font-size: 1.4rem;
+  letter-spacing: 0.15em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+button.secondary {
+  background: var(--surface);
+  color: var(--brand);
+  border: 2px solid var(--brand);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+button.danger {
+  color: var(--danger);
+}
+
+.error {
+  margin: 0;
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.hint {
+  margin-top: 8px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 0.9rem;
+}
+
+.members {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.invite-code {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-align: center;
 }
 
 .banner {

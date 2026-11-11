@@ -1,0 +1,203 @@
+rules_version = '2';
+
+// Reglas de Firestore de LocaLisT V2 (proyecto localist-v2).
+// Se prueban con `npm run test:rules` (emulador local) ANTES de desplegarlas.
+//
+// Modelo:
+//   users/{uid}                        { familyId }            → en qué familia estoy
+//   invites/{code}                     { familyId, ... }       → invitación con caducidad
+//   families/{fid}                     { name, createdBy, ... }
+//     members/{uid}                    { name, role, invite }  → quién pertenece
+//     items/{itemId}                   la lista
+//     stores/{storeId}                 supermercados y pasillos
+//     catalog/{itemId}                 productos usados antes (autocompletar)
+//
+// Idea central: SER MIEMBRO = que exista families/{fid}/members/{tu uid}.
+// Solo se puede crear ese documento siendo el creador de la familia o con
+// una invitación válida. Todo lo demás de la familia exige ser miembro.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Utilidades ──────────────────────────────────────────────────────────
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function familyPath(fid) {
+      return /databases/$(database)/documents/families/$(fid);
+    }
+
+    function memberPath(fid, uid) {
+      return /databases/$(database)/documents/families/$(fid)/members/$(uid);
+    }
+
+    function isMember(fid) {
+      return signedIn() && exists(memberPath(fid, request.auth.uid));
+    }
+
+    function isOwner(fid) {
+      return isMember(fid) && get(memberPath(fid, request.auth.uid)).data.role == 'owner';
+    }
+
+    function data() {
+      return request.resource.data;
+    }
+
+    function isText(value, min, max) {
+      return value is string && value.size() >= min && value.size() <= max;
+    }
+
+    // Solo cambian estos campos respecto al documento actual.
+    function onlyChanges(fields) {
+      return data().diff(resource.data).affectedKeys().hasOnly(fields);
+    }
+
+    // ─── Usuarios ────────────────────────────────────────────────────────────
+
+    match /users/{uid} {
+      allow read, delete: if signedIn() && request.auth.uid == uid;
+
+      // Solo puedes apuntar a una familia de la que eres (o pasas a ser) miembro.
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && data().keys().hasOnly(['familyId', 'updatedAt'])
+        && data().familyId is string
+        && data().updatedAt == request.time
+        && existsAfter(memberPath(data().familyId, uid));
+    }
+
+    // ─── Invitaciones ────────────────────────────────────────────────────────
+    // El código ES el id del documento. Se puede LEER si conoces el código,
+    // pero no LISTAR: nadie puede ver qué códigos existen.
+
+    match /invites/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+
+      allow create: if signedIn()
+        && code.matches('^[A-HJ-NP-Z2-9]{8}$')
+        && data().keys().hasOnly(['familyId', 'familyName', 'createdBy', 'createdAt', 'expiresAt'])
+        && isMember(data().familyId)
+        && isText(data().familyName, 1, 40)
+        && data().createdBy == request.auth.uid
+        && data().createdAt == request.time
+        && data().expiresAt is timestamp
+        && data().expiresAt > request.time
+        && data().expiresAt <= request.time + duration.value(8, 'd');
+
+      allow update: if false;
+      allow delete: if isMember(resource.data.familyId);
+    }
+
+    // ─── Familias ────────────────────────────────────────────────────────────
+
+    match /families/{fid} {
+      allow read: if isMember(fid);
+
+      // Se crea a la vez (batch) que el miembro "owner" de quien la crea.
+      allow create: if signedIn()
+        && data().keys().hasOnly(['name', 'createdBy', 'createdAt'])
+        && isText(data().name, 1, 40)
+        && data().createdBy == request.auth.uid
+        && data().createdAt == request.time
+        && existsAfter(memberPath(fid, request.auth.uid));
+
+      allow update: if isMember(fid) && onlyChanges(['name']) && isText(data().name, 1, 40);
+
+      // Borrar una familia entera no se hace desde la app.
+      allow delete: if false;
+
+      // ── Miembros ──
+      match /members/{uid} {
+        allow read: if isMember(fid);
+
+        allow create: if signedIn() && request.auth.uid == uid
+          && data().keys().hasOnly(['name', 'role', 'invite', 'joinedAt'])
+          && isText(data().name, 1, 30)
+          && data().joinedAt == request.time
+          && (
+            // a) Creador de una familia nueva (mismo batch que la familia).
+            (data().role == 'owner'
+              && data().invite == null
+              && !exists(familyPath(fid))
+              && getAfter(familyPath(fid)).data.createdBy == uid)
+            ||
+            // b) Unirse con una invitación vigente de ESTA familia.
+            (data().role == 'member'
+              && data().invite is string
+              && data().invite.matches('^[A-HJ-NP-Z2-9]{8}$')
+              && exists(/databases/$(database)/documents/invites/$(data().invite))
+              && get(/databases/$(database)/documents/invites/$(data().invite)).data.familyId == fid
+              && get(/databases/$(database)/documents/invites/$(data().invite)).data.expiresAt > request.time)
+          );
+
+        // Cada uno puede cambiar su propio nombre visible.
+        allow update: if signedIn() && request.auth.uid == uid
+          && onlyChanges(['name']) && isText(data().name, 1, 30);
+
+        // Salir de la familia (uno mismo) o expulsar (solo el creador).
+        allow delete: if signedIn() && (request.auth.uid == uid || isOwner(fid));
+      }
+
+      // ── Lista de la compra ──
+      match /items/{itemId} {
+        function validItem() {
+          let d = data();
+          return d.keys().hasOnly(['name', 'qty', 'done', 'category', 'doneAt', 'updatedAt', 'updatedBy'])
+            && d.keys().hasAll(['name', 'qty', 'done', 'category', 'updatedAt', 'updatedBy'])
+            && isText(d.name, 1, 60)
+            && d.qty is int && d.qty >= 1 && d.qty <= 99
+            && d.done is bool
+            && isText(d.category, 1, 30)
+            && (!('doneAt' in d) || d.doneAt == null || d.doneAt is timestamp)
+            && d.updatedAt == request.time
+            && d.updatedBy == request.auth.uid;
+        }
+
+        allow read, delete: if isMember(fid);
+        allow create, update: if isMember(fid)
+          && itemId.matches('^[a-z0-9-]{1,80}$')
+          && validItem();
+      }
+
+      // ── Supermercados ──
+      match /stores/{storeId} {
+        function validStore() {
+          let d = data();
+          return d.keys().hasOnly(['name', 'icon', 'aisles', 'overrides', 'updatedAt'])
+            && isText(d.name, 1, 40)
+            && isText(d.icon, 1, 16)
+            && d.aisles is list && d.aisles.size() <= 40
+            && d.overrides is map && d.overrides.size() <= 500
+            && d.updatedAt == request.time;
+        }
+
+        allow read, delete: if isMember(fid);
+        allow create, update: if isMember(fid) && validStore();
+      }
+
+      // ── Catálogo (productos usados antes) ──
+      match /catalog/{itemId} {
+        function validEntry() {
+          let d = data();
+          return d.keys().hasOnly(['name', 'category', 'uses', 'lastUsedAt'])
+            && isText(d.name, 1, 60)
+            && isText(d.category, 1, 30)
+            && d.uses is int && d.uses >= 0
+            && d.lastUsedAt == request.time;
+        }
+
+        allow read, delete: if isMember(fid);
+        allow create, update: if isMember(fid)
+          && itemId.matches('^[a-z0-9-]{1,80}$')
+          && validEntry();
+      }
+    }
+
+    // Cualquier otra ruta: cerrada.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

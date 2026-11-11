@@ -48,7 +48,7 @@ export default defineConfig({
     }),
   ],
   test: {
+    // Se lanza con scripts/vitest.mjs (ver allí el porqué).
     include: ['src/**/*.test.{ts,tsx}'],
-    passWithNoTests: true, // los primeros tests llegan en la Fase 2
   },
 });

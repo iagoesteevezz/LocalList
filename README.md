@@ -27,7 +27,23 @@ npm run dev        # servidor de desarrollo (http://localhost:5173/LocalList/)
 npm run check      # tipos + lint + tests + build (lo mismo que la CI)
 npm run preview    # sirve el build, con service worker real
 npm run icons      # regenera iconos PWA desde public/icon.svg
+
+npm run dev:emu    # app + emuladores de Firebase (datos falsos, nada real)
+npm run test:rules # tests de las reglas de Firestore contra el emulador
 ```
+
+Los emuladores necesitan Java 21 o superior. Usan el proyecto `demo-localist`,
+que no existe en la nube: es imposible tocar datos reales desde ahí.
+
+## Firebase
+
+- Proyecto: `localist-v2`. Reglas en `firebase/firestore.rules`, con tests en
+  `firebase/rules.test.ts`.
+- Desplegar reglas (solo tras pasar `npm run test:rules`):
+  `npx firebase login` y luego `npx firebase deploy --only firestore:rules`.
+- Sesión **anónima**: no hay login. Se entra a una familia con un código de
+  invitación (8 caracteres, caduca en 7 días). En iPhone, la app instalada no
+  comparte datos con Safari: hay que unirse desde la app ya instalada.
 
 Para probar en el móvil en la misma wifi: `npm run dev -- --host` y abre la
 IP que muestra.
@@ -37,6 +53,9 @@ IP que muestra.
 ```
 src/
   App.tsx            raíz de la app
+  domain/            lógica pura (texto, categorías, duplicados, ruta, invitaciones) + tests
+  data/              Firebase: inicialización, sesión, familia
+  screens/           pantallas
   lib/               utilidades y hooks sin UI
   pwa/               registro del service worker y aviso de actualización
   styles/            CSS
