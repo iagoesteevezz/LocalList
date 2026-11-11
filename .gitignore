@@ -1,0 +1,28 @@
+# Dependencias y builds
+node_modules/
+dist/
+dev-dist/
+coverage/
+
+# Copias de seguridad de datos reales: NUNCA al repositorio (es público)
+backups/
+
+# Variables de entorno locales
+.env.local
+.env.*.local
+
+# Credenciales de servicio de Firebase (scripts de migración)
+*service-account*.json
+
+# Firebase emulator
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+.firebase/
+
+# Editor / SO
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+*.log

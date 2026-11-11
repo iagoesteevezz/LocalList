@@ -1,0 +1,43 @@
+rules_version = '2';
+
+// Reglas ENDURECIDAS para el proyecto locallist-18b64 (la V1 en producción).
+// No se despliegan desde el repo: se pegan a mano en
+// Firebase Console → Firestore Database → Reglas → Publicar.
+//
+// Qué cambia respecto a las reglas actuales:
+//  - La V1 solo puede tocar su único documento: supermercados/mercadona_cruce.
+//  - Nadie puede BORRAR ese documento (antes cualquiera podía).
+//  - Se limita el número de campos para que no se pueda inflar el documento.
+//  - Se cierran las colecciones raíz que nadie usa (lista_global, productos).
+//  - Se cierra todo lo de la V2 antigua (families, users, supermarkets_community):
+//    la V2 nueva vive en OTRO proyecto de Firebase.
+//
+// Qué NO puede impedir: alguien con la clave pública puede seguir leyendo y
+// modificando la lista. La V1 no tiene login, así que no hay forma de saber
+// quién escribe. Eso solo se arregla migrando a la V2.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /supermercados/{docId} {
+      allow read: if docId == 'mercadona_cruce';
+
+      allow create, update: if docId == 'mercadona_cruce'
+        && request.resource.data.keys().size() <= 600
+        && request.resource.data.get('productos_p1', []) is list
+        && request.resource.data.get('productos_p2', []) is list
+        && request.resource.data.get('productos_p3', []) is list
+        && request.resource.data.get('productos_p4', []) is list
+        && request.resource.data.get('productos_p5', []) is list
+        && request.resource.data.get('productos_p6', []) is list
+        && request.resource.data.get('productos_p7', []) is list;
+
+      allow delete: if false;
+    }
+
+    // Todo lo demás, cerrado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
