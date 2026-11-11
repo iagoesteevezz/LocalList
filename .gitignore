@@ -14,6 +14,9 @@ backups/
 # Credenciales de servicio de Firebase (scripts de migración)
 *service-account*.json
 
+# Copia del build para Firebase Hosting (scripts/stage-hosting.mjs)
+.hosting/
+
 # Firebase emulator
 firebase-debug.log
 firestore-debug.log

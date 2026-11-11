@@ -10,6 +10,7 @@ import { useHashRoute } from './lib/useHashRoute';
 import { useKeyboardInset } from './lib/useViewportVars';
 import { UpdatePrompt } from './pwa/UpdatePrompt';
 import { FamilyScreen } from './screens/FamilyScreen';
+import { ImportV1Screen } from './screens/ImportV1Screen';
 import { ListScreen } from './screens/list/ListScreen';
 import { Onboarding } from './screens/Onboarding';
 import { ShopScreen } from './screens/shop/ShopScreen';
@@ -60,7 +61,12 @@ function Shell({ uid, family }: { uid: string; family: Family }) {
   const [section = 'lista', param, extra] = route.split('/');
   const { stores, loaded: storesLoaded } = useStores(family.id);
   const catalog = useCatalog(family.id);
-  const tab = section === 'familia' || section === 'super' ? 'familia' : section === 'comprar' ? 'comprar' : 'lista';
+  const tab =
+    section === 'familia' || section === 'super' || section === 'importar-v1'
+      ? 'familia'
+      : section === 'comprar'
+        ? 'comprar'
+        : 'lista';
 
   const tabBar = (
     <nav className="tabbar" aria-label="Secciones">
@@ -74,7 +80,10 @@ function Shell({ uid, family }: { uid: string; family: Family }) {
   );
 
   let screen: (toastView: ReactNode) => ReactNode;
-  if (section === 'super' && param === 'nuevo') {
+  if (section === 'importar-v1') {
+    // Pantalla oculta: solo se llega escribiendo la dirección (#/importar-v1).
+    screen = () => <ImportV1Screen family={family} stores={stores} />;
+  } else if (section === 'super' && param === 'nuevo') {
     const template = extra === 'blanco' ? undefined : TEMPLATES[Number(extra)];
     const initial = template ? draftFromTemplate(template) : emptyDraft();
     screen = () => <StoreEditor key={`nuevo-${extra}`} familyId={family.id} initial={initial} catalog={catalog} />;

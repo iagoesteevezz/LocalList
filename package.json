@@ -17,7 +17,8 @@
     "emulators": "firebase emulators:start --project demo-localist",
     "dev:emu": "firebase emulators:exec --only auth,firestore --project demo-localist --ui \"vite --mode emulators\"",
     "preview:emu": "firebase emulators:exec --only auth,firestore --project demo-localist \"vite build --mode emulators && vite preview --port 4173 --strictPort\"",
-    "size": "node scripts/check-bundle.mjs"
+    "size": "node scripts/check-bundle.mjs",
+    "deploy:beta": "npm run check && node scripts/stage-hosting.mjs && firebase deploy --only hosting --project localist-v2"
   },
   "dependencies": {
     "firebase": "13.1.0",
