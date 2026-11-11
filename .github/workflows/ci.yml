@@ -1,4 +1,4 @@
-# Comprueba cada push y PR: tipos, lint, tests y build.
+# Comprueba cada push y PR: tipos, lint, tests, build, tamaño y reglas de Firestore.
 # NO despliega nada. El despliegue a GitHub Pages se añadirá aparte,
 # y solo se activará cuando se apruebe el cambio de la V1 a la V2.
 name: CI
@@ -22,3 +22,19 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
+
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      # El emulador de Firestore necesita Java.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci
+      - run: npm run test:rules

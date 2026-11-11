@@ -12,10 +12,12 @@
     "test": "node scripts/vitest.mjs run",
     "test:watch": "node scripts/vitest.mjs",
     "icons": "pwa-assets-generator",
-    "check": "npm run typecheck && npm run lint && npm run test && npm run build",
+    "check": "npm run typecheck && npm run lint && npm run test && npm run build && npm run size",
     "test:rules": "firebase emulators:exec --only firestore --project demo-localist \"node scripts/vitest.mjs run --config vitest.rules.config.ts\"",
     "emulators": "firebase emulators:start --project demo-localist",
-    "dev:emu": "firebase emulators:exec --only auth,firestore --project demo-localist --ui \"vite --mode emulators\""
+    "dev:emu": "firebase emulators:exec --only auth,firestore --project demo-localist --ui \"vite --mode emulators\"",
+    "preview:emu": "firebase emulators:exec --only auth,firestore --project demo-localist \"vite build --mode emulators && vite preview --port 4173 --strictPort\"",
+    "size": "node scripts/check-bundle.mjs"
   },
   "dependencies": {
     "firebase": "13.1.0",
@@ -30,6 +32,7 @@
     "@types/react-dom": "19.3.0",
     "@vite-pwa/assets-generator": "2.0.0",
     "@vitejs/plugin-react": "6.1.2",
+    "axe-core": "4.14.0",
     "eslint": "10.13.0",
     "eslint-plugin-react-hooks": "7.1.1",
     "eslint-plugin-react-refresh": "0.5.7",

@@ -24,12 +24,13 @@ con una mano.
 ```bash
 npm install
 npm run dev        # servidor de desarrollo (http://localhost:5173/LocalList/)
-npm run check      # tipos + lint + tests + build (lo mismo que la CI)
-npm run preview    # sirve el build, con service worker real
+npm run check      # tipos + lint + tests + build + límite de tamaño (lo mismo que la CI)
+npm run size       # peso de la carga inicial (límite 240 KB comprimidos)
 npm run icons      # regenera iconos PWA desde public/icon.svg
 
-npm run dev:emu    # app + emuladores de Firebase (datos falsos, nada real)
-npm run test:rules # tests de las reglas de Firestore contra el emulador
+npm run dev:emu     # app en desarrollo + emuladores de Firebase (datos falsos)
+npm run preview:emu # build de PRODUCCIÓN (service worker + CSP) contra emuladores
+npm run test:rules  # tests de las reglas de Firestore contra el emulador
 ```
 
 Los emuladores necesitan Java 21 o superior. Usan el proyecto `demo-localist`,
@@ -53,9 +54,11 @@ IP que muestra.
 ```
 src/
   App.tsx            raíz de la app
-  domain/            lógica pura (texto, categorías, duplicados, ruta, invitaciones) + tests
-  data/              Firebase: inicialización, sesión, familia
-  screens/           pantallas
+  domain/            lógica pura (texto, categorías, duplicados, ruta, súper, invitaciones) + tests
+  data/              Firebase: inicialización, sesión, familia, lista, súpers
+  screens/           pantallas (list, shop, stores, bienvenida, familia)
+  ui/                piezas de interfaz (iconos, hojas, avisos, tachado)
+  vendor-stubs/      sustitutos de dependencias que no usamos
   lib/               utilidades y hooks sin UI
   pwa/               registro del service worker y aviso de actualización
   styles/            CSS
@@ -63,7 +66,22 @@ public/              iconos y estáticos
 scripts/             utilidades de Node (respaldo y migración de la V1)
 firebase/            reglas de Firestore
 docs/legacy-brand/   logos de la V1
+PRODUCT.md           para quién es y qué debe cumplir
+DESIGN.md            sistema visual ("La pizarra de Vegueta")
 ```
+
+## Robustez
+
+- **Sin conexión:** la app (service worker) y los datos (caché de Firestore en
+  IndexedDB) abren sin red. Las escrituras nunca se esperan en la UI; suben
+  solas al volver la red. Probado con `preview:emu` en modo avión.
+- **CSP** en `vite.config.ts`, solo en producción: scripts solo propios,
+  conexiones solo a `*.googleapis.com`.
+- **Peso:** Firebase, React y la app van en archivos separados; una versión
+  nueva solo descarga el código de la app (~20 KB). `re2js` se sustituye por
+  un módulo vacío (ver `src/vendor-stubs/re2js.ts`).
+- **Errores:** `ErrorBoundary` muestra "Algo ha fallado / Volver a abrir" en
+  vez de una pantalla en blanco.
 
 ## Datos y privacidad
 

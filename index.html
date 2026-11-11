@@ -20,9 +20,27 @@
     <link rel="icon" href="/LocalList/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/LocalList/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/LocalList/apple-touch-icon-180x180.png" />
+
+    <!-- Pantalla de arranque: se ve al instante, antes de que cargue el JavaScript.
+         React la sustituye al montar la app. -->
+    <style>
+      html, body { margin: 0; background: #1f3a2d; }
+      .boot { display: grid; place-items: center; gap: 14px; min-height: 100dvh; color: #f3f1e7;
+        font: 700 1.125rem ui-rounded, system-ui, -apple-system, sans-serif; }
+      .boot__inner { display: grid; justify-items: center; gap: 14px; }
+      .boot img { width: 64px; height: 64px; }
+      @media (prefers-color-scheme: dark) { html, body { background: #10201a; } }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot" aria-live="polite">
+        <div class="boot__inner">
+          <img src="/LocalList/icon.svg" alt="" />
+          <span>LocaLisT</span>
+        </div>
+      </div>
+    </div>
     <noscript>LocaLisT necesita JavaScript activado.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>

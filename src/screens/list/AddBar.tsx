@@ -49,7 +49,7 @@ export function AddBar({ catalog, pendingIds, onAdd }: Props) {
           ))}
         </ul>
       )}
-      <form className="addbar" onSubmit={submit}>
+      <form className="addbar" onSubmit={submit} aria-label="Apuntar productos">
         <label htmlFor={inputId} className="visually-hidden">
           Apuntar un producto
         </label>
