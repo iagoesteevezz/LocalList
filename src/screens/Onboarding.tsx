@@ -1,5 +1,5 @@
 // Bienvenida: crear una familia o unirse con una invitación.
-// (Visual provisional: el diseño definitivo llega en la fase de diseño.)
+// Se ve sobre la pizarra entera: es lo primero que ve quien abre la app.
 
 import { useEffect, useId, useState, type SubmitEvent } from 'react';
 import { createFamily, joinFamily, readInvite, type Invite, type InviteLookup } from '../data/family';
@@ -19,19 +19,20 @@ export function Onboarding({ initialCode, onDone }: Props) {
   const [step, setStep] = useState<Step>(initialCode ? 'join' : 'start');
 
   return (
-    <main className="screen onboarding">
-      <header className="onboarding__header">
-        <img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" width={72} height={72} />
+    <main className="welcome">
+      <div className="welcome__inner">
+      <header className="welcome__brand">
+        <img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" width={64} height={64} />
         <h1>LocaLisT</h1>
-        <p className="muted">La lista de la compra de la familia.</p>
+        <p>La lista de la compra de la familia, ordenada por pasillos.</p>
       </header>
 
       {step === 'start' && (
         <div className="stack">
-          <button type="button" onClick={() => setStep('join')}>
+          <button type="button" className="btn btn--block" onClick={() => setStep('join')}>
             Tengo una invitación
           </button>
-          <button type="button" className="secondary" onClick={() => setStep('create')}>
+          <button type="button" className="btn btn--outline btn--block" onClick={() => setStep('create')}>
             Crear una familia nueva
           </button>
           <InstallHint />
@@ -39,6 +40,7 @@ export function Onboarding({ initialCode, onDone }: Props) {
       )}
       {step === 'create' && <CreateForm onBack={() => setStep('start')} onDone={onDone} />}
       {step === 'join' && <JoinForm initialCode={initialCode} onBack={() => setStep('start')} onDone={onDone} />}
+      </div>
     </main>
   );
 }
@@ -73,7 +75,7 @@ function CreateForm({ onBack, onDone }: { onBack: () => void; onDone: () => void
   return (
     <form className="stack" onSubmit={submit}>
       <label htmlFor={familyId}>Nombre de la familia</label>
-      <input
+      <input className="input"
         id={familyId}
         value={familyName}
         onChange={(e) => setFamilyName(e.target.value)}
@@ -83,7 +85,7 @@ function CreateForm({ onBack, onDone }: { onBack: () => void; onDone: () => void
         autoComplete="off"
       />
       <label htmlFor={nameId}>Tu nombre</label>
-      <input
+      <input className="input"
         id={nameId}
         value={name}
         onChange={(e) => setName(e.target.value)}
@@ -93,10 +95,10 @@ function CreateForm({ onBack, onDone }: { onBack: () => void; onDone: () => void
         autoComplete="given-name"
       />
       {error && <p className="error" role="alert">{error}</p>}
-      <button type="submit" disabled={busy || !familyName.trim() || !name.trim()}>
+      <button type="submit" className="btn btn--block" disabled={busy || !familyName.trim() || !name.trim()}>
         {busy ? 'Creando…' : 'Crear familia'}
       </button>
-      <button type="button" className="ghost" onClick={onBack}>
+      <button type="button" className="btn btn--quiet btn--block" onClick={onBack}>
         Volver
       </button>
     </form>
@@ -177,7 +179,7 @@ function JoinForm({
           Vas a unirte a <strong>{invite.familyName}</strong>.
         </p>
         <label htmlFor={nameId}>¿Cómo te llamas?</label>
-        <input
+        <input className="input"
           id={nameId}
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -187,10 +189,10 @@ function JoinForm({
           autoComplete="given-name"
         />
         {error && <p className="error" role="alert">{error}</p>}
-        <button type="submit" disabled={busy || !name.trim()}>
+        <button type="submit" className="btn btn--block" disabled={busy || !name.trim()}>
           {busy ? 'Uniéndote…' : 'Unirme'}
         </button>
-        <button type="button" className="ghost" onClick={() => setInvite(null)}>
+        <button type="button" className="btn btn--quiet btn--block" onClick={() => setInvite(null)}>
           No es esta familia
         </button>
       </form>
@@ -208,7 +210,7 @@ function JoinForm({
       <label htmlFor={codeId}>Código de invitación</label>
       <input
         id={codeId}
-        className="code-input"
+        className="input code-input"
         value={code}
         onChange={(e) => setCode(e.target.value)}
         placeholder="ABCD-2345"
@@ -221,10 +223,10 @@ function JoinForm({
         inputMode="text"
       />
       {error && <p className="error" role="alert">{error}</p>}
-      <button type="submit" disabled={busy || !code.trim()}>
+      <button type="submit" className="btn btn--block" disabled={busy || !code.trim()}>
         {busy ? 'Buscando…' : 'Continuar'}
       </button>
-      <button type="button" className="ghost" onClick={onBack}>
+      <button type="button" className="btn btn--quiet btn--block" onClick={onBack}>
         Volver
       </button>
     </form>

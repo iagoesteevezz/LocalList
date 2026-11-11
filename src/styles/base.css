@@ -1,39 +1,79 @@
-/* Estilos base PROVISIONALES (Fase 1).
-   El sistema de diseño definitivo llega en la fase de identidad visual. */
+/* LocaLisT — mundo "Pizarra de Vegueta".
+   Pizarra verde, palabras en tiza, tachado a mano.
+   Claro: filas de tinta sobre polvo de tiza bajo la pizarra (cabecera y barra).
+   Oscuro: toda la pantalla es la pizarra.
+   El estado lo llevan las MARCAS (aro vacío, tachado, aro discontinuo), no solo el color. */
 
 :root {
-  --bg: #f6f5f0;
-  --surface: #ffffff;
-  --text: #1c2a1f;
-  --text-muted: #4f5e53;
-  --brand: #2f6b2f;
-  --brand-contrast: #ffffff;
-  --warn-bg: #fff3cd;
-  --warn-text: #5c4400;
-  --border: #cfd6cf;
-  --danger: #b3261e;
+  color-scheme: light;
+
+  /* Pizarra (cabecera, barra de pestañas) */
+  --board: #1f3a2d;
+  --board-deep: #16291f;
+  --on-board: #f3f1e7;
+  --on-board-muted: #bccabe;
+  --chalk-yellow: #f2d45c;
+
+  /* Superficie de trabajo */
+  --ground: #e9eee9;
+  --row: #ffffff;
+  --row-pressed: #f1f5f1;
+  --ink: #13201a;
+  --ink-muted: #3f5247;
+  --done-ink: #56685c;
+  --line: #cad5cc;
+  --mark: #1f3a2d;
+  --strike: #1f3a2d;
+
+  --primary: #1f3a2d;
+  --on-primary: #f3f1e7;
+  --danger: #a3261d;
+  --focus: #1f3a2d;
+  --selection: #f2d45c;
+
+  /* Ritmo */
+  --row-h: 3.5rem; /* 56px con texto por defecto */
+  --gutter: 16px;
+  --radius: 14px;
+  --dock-h: 0px; /* lo fija la app según lo que haya abajo */
+  --kb: 0px; /* altura del teclado en iOS (useKeyboardInset) */
 
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-  color-scheme: light dark;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  font-size: 18px; /* base grande: se lee de pie y con el móvil en una mano */
-  line-height: 1.45;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  font-family: ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.4;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* En iPhone: respeta el tamaño de texto elegido en Ajustes (Dynamic Type). */
+@supports (font: -apple-system-body) {
+  :root {
+    font: -apple-system-body;
+    font-family: ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, sans-serif;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #101a13;
-    --surface: #18251c;
-    --text: #e8efe9;
-    --text-muted: #a9b8ad;
-    --brand: #7cc47c;
-    --brand-contrast: #0d1a10;
-    --warn-bg: #3a2f0a;
-    --warn-text: #ffe39a;
-    --border: #34463a;
-    --danger: #ffb4ab;
+    color-scheme: dark;
+    --board: #10201a;
+    --board-deep: #0b1712;
+    --ground: #16261e;
+    --row: #1d3027;
+    --row-pressed: #243a2f;
+    --ink: #f3f1e7;
+    --ink-muted: #bccabe;
+    --done-ink: #95a99b;
+    --line: #2f4639;
+    --mark: #f3f1e7;
+    --strike: #f3f1e7;
+    --primary: #f3f1e7;
+    --on-primary: #13201a;
+    --danger: #ffb4a9;
+    --focus: #f2d45c;
   }
 }
 
@@ -43,157 +83,806 @@
   box-sizing: border-box;
 }
 
-html,
+html {
+  background: var(--board);
+}
+
 body {
   margin: 0;
   min-height: 100dvh;
-  background: var(--bg);
-  color: var(--text);
-  -webkit-text-size-adjust: 100%;
+  background: var(--ground);
+  color: var(--ink);
+  font-size: 1.125rem; /* ~19px en iPhone: legible con gafas de cerca */
   -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
 }
 
+::selection {
+  background: var(--selection);
+  color: #13201a;
+}
+
+input,
+select,
 button {
   font: inherit;
-  min-height: 48px;
-  padding: 0 20px;
-  border: 0;
-  border-radius: 12px;
-  background: var(--brand);
-  color: var(--brand-contrast);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-button.ghost {
-  background: transparent;
   color: inherit;
-  text-decoration: underline;
 }
 
 :focus-visible {
-  outline: 3px solid var(--brand);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 
-.app {
-  min-height: 100dvh;
-  padding-top: var(--safe-top);
-  padding-bottom: var(--safe-bottom);
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-/* ─── Pantallas y formularios (provisional, Fase 3) ─────────────────────── */
-
-.screen {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 24px 16px 48px;
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.screen.centered {
-  display: grid;
-  gap: 16px;
-  place-items: center;
-  min-height: 60dvh;
-  text-align: center;
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
-.stack {
-  display: grid;
-  gap: 12px;
-  margin-top: 24px;
+/* Icono dentro de una línea de texto */
+.icon--inline {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
 }
 
-.onboarding__header {
-  display: grid;
-  justify-items: center;
-  gap: 4px;
-  padding-top: 8vh;
-  text-align: center;
+.icon--hero {
+  width: 2.5rem;
+  height: 2.5rem;
 }
 
-.onboarding__header h1 {
-  margin: 8px 0 0;
+/* ─── Botones ─────────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 3.25rem;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 120ms var(--ease-out), opacity 120ms;
 }
 
-h1,
-h2 {
-  line-height: 1.2;
+.btn:active {
+  transform: scale(0.97);
 }
 
-h2 {
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.muted {
-  margin: 0;
-  color: var(--text-muted);
-}
-
-.lead {
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-label {
-  font-weight: 600;
-}
-
-input {
-  font: inherit;
-  min-height: 52px;
-  padding: 0 14px;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface);
-  color: var(--text);
-}
-
-input:focus-visible {
-  outline: none;
-  border-color: var(--brand);
-}
-
-.code-input {
-  font-size: 1.4rem;
-  letter-spacing: 0.15em;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-button.secondary {
-  background: var(--surface);
-  color: var(--brand);
-  border: 2px solid var(--brand);
-}
-
-button:disabled {
-  opacity: 0.55;
+.btn:disabled {
+  opacity: 0.5;
   cursor: default;
 }
 
-button.danger {
+.btn--block {
+  width: 100%;
+}
+
+.btn--outline {
+  background: transparent;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--line);
+}
+
+.btn--quiet {
+  background: transparent;
+  color: var(--ink-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.btn--danger {
+  background: transparent;
   color: var(--danger);
+  box-shadow: inset 0 0 0 2px currentColor;
+}
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.icon-btn:active {
+  background: var(--row-pressed);
+}
+
+/* ─── Campos ──────────────────────────────────────────────────────────── */
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field label {
+  font-weight: 700;
+}
+
+.input,
+.select {
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0 14px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--row);
+  color: var(--ink);
+  caret-color: var(--ink);
+}
+
+.input::placeholder {
+  color: var(--ink-muted);
+  opacity: 0.85;
+}
+
+.input:focus-visible,
+.select:focus-visible {
+  outline: none;
+  border-color: var(--focus);
 }
 
 .error {
   margin: 0;
   color: var(--danger);
+  font-weight: 700;
+}
+
+.muted {
+  margin: 0;
+  color: var(--ink-muted);
+}
+
+/* ─── Estructura de la app ────────────────────────────────────────────── */
+
+.app {
+  min-height: 100dvh;
+  padding-bottom: calc(var(--dock-h) + var(--safe-bottom));
+}
+
+.board-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: calc(var(--safe-top) + 14px) var(--gutter) 14px;
+  background: var(--board);
+  color: var(--on-board);
+}
+
+.board-header__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.board-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.board-header__count {
+  flex: none;
+  margin: 0;
+  color: var(--on-board-muted);
   font-weight: 600;
 }
 
-.hint {
-  margin-top: 8px;
-  padding: 14px;
-  border-radius: 12px;
-  background: var(--surface);
-  font-size: 0.9rem;
+.board-header__count strong {
+  color: var(--chalk-yellow);
+  font-size: 1.25rem;
 }
 
-.members {
+.board-header__status {
+  max-width: 640px;
+  margin: 6px auto 0;
+  color: var(--on-board-muted);
+  font-size: 0.875rem;
+}
+
+.content {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 8px var(--gutter) 24px;
+}
+
+/* Lo de abajo: avisos, sugerencias, campo de añadir y pestañas. */
+.dock {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 20;
+  transform: translateY(calc(var(--kb) * -1));
+  pointer-events: none;
+}
+
+.dock > * {
+  pointer-events: auto;
+}
+
+.dock__inner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* ─── Pestañas ────────────────────────────────────────────────────────── */
+
+.tabbar {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  padding-bottom: var(--safe-bottom);
+  background: var(--board);
+  border-top: 1px solid var(--board-deep);
+}
+
+.keyboard-open .tabbar {
+  display: none;
+}
+
+.tabbar a {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-height: 3.5rem;
+  padding: 8px 4px 6px;
+  color: var(--on-board-muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.tabbar a[aria-current='page'] {
+  color: var(--on-board);
+}
+
+.tabbar a[aria-current='page'] .icon {
+  color: var(--chalk-yellow);
+}
+
+/* ─── Grupos y filas de la lista ──────────────────────────────────────── */
+
+.group {
+  margin-top: 20px;
+}
+
+.group__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 4px 8px;
+  color: var(--ink-muted);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.group__title .tabular {
+  font-weight: 700;
+}
+
+.rows {
   margin: 0;
-  padding-left: 20px;
+  padding: 0;
+  list-style: none;
+  border-radius: var(--radius);
+  background: var(--row);
+  box-shadow: 0 1px 2px rgb(19 32 26 / 0.06), 0 2px 8px rgb(19 32 26 / 0.04);
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  min-height: var(--row-h);
+}
+
+.row + .row {
+  border-top: 1px solid var(--line);
+}
+
+.row__toggle {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  min-height: var(--row-h);
+  padding: 8px 4px 8px 14px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.row__toggle:active {
+  background: var(--row-pressed);
+}
+
+/* Marca: aro vacío = pendiente; aro con check = en el carro. */
+.mark {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: none;
+  border: 2.5px solid var(--mark);
+  border-radius: 50%;
+  color: var(--row);
+}
+
+.row--done .mark {
+  background: var(--done-ink);
+  border-color: var(--done-ink);
+}
+
+.mark .icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  stroke-width: 3;
+}
+
+.row__name {
+  position: relative;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+
+.row--done .row__name {
+  color: var(--done-ink);
+  font-weight: 500;
+}
+
+.qty {
+  flex: none;
+  margin-left: auto;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--ground);
+  font-weight: 800;
+}
+
+.row__more {
+  flex: none;
+  width: 3rem;
+  height: var(--row-h);
+  border-radius: 0;
+}
+
+/* Firma: el tachado de tiza. Un trazo dibujado a mano sobre el nombre. */
+.strike {
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  top: 50%;
+  width: calc(100% + 8px);
+  height: 14px;
+  transform: translateY(-50%);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.strike path {
+  fill: none;
+  stroke: var(--strike);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.strike--drawing path {
+  animation: chalk 360ms var(--ease-out) both;
+}
+
+@keyframes chalk {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ─── Lo que ya está en el carro ──────────────────────────────────────── */
+
+.cart {
+  margin-top: 28px;
+}
+
+.cart__finish {
+  margin-top: 12px;
+}
+
+/* ─── Vacío ───────────────────────────────────────────────────────────── */
+
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 18vh 24px 0;
+  color: var(--ink-muted);
+  text-align: center;
+}
+
+.empty h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.25rem;
+}
+
+.empty p {
+  margin: 0;
+  max-width: 26ch;
+}
+
+/* ─── Añadir ──────────────────────────────────────────────────────────── */
+
+.addbar {
+  display: flex;
+  gap: 10px;
+  padding: 10px var(--gutter);
+  background: var(--ground);
+  border-top: 1px solid var(--line);
+}
+
+.addbar .input {
+  flex: 1;
+  min-height: 3.5rem;
+  font-size: 1.125rem; /* ≥16px: iOS no hace zoom al enfocar */
+}
+
+.addbar__btn {
+  width: 3.5rem;
+  height: 3.5rem;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.addbar__btn .icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  stroke-width: 2.5;
+}
+
+.suggestions {
+  margin: 0;
+  padding: 6px var(--gutter);
+  list-style: none;
+  background: var(--ground);
+}
+
+.suggestions button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--row);
+  color: var(--ink);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.suggestions li + li {
+  margin-top: 6px;
+}
+
+.suggestions .icon {
+  color: var(--ink-muted);
+}
+
+/* ─── Aviso con deshacer ──────────────────────────────────────────────── */
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 var(--gutter) 10px;
+  padding: 10px 10px 10px 16px;
+  border-radius: var(--radius);
+  background: var(--board);
+  color: var(--on-board);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+  animation: toast-in 240ms var(--ease-out) both;
+}
+
+.toast__msg {
+  flex: 1;
+  font-weight: 600;
+}
+
+.toast .btn {
+  min-height: 2.75rem;
+  padding: 0 14px;
+  background: transparent;
+  color: var(--chalk-yellow);
+  box-shadow: inset 0 0 0 2px var(--chalk-yellow);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+/* ─── Hoja inferior (dialog) ──────────────────────────────────────────── */
+
+.sheet {
+  width: 100%;
+  max-width: 640px;
+  margin: auto auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: 22px 22px 0 0;
+  background: var(--row);
+  color: var(--ink);
+  max-height: 90dvh;
+}
+
+.sheet[open] {
+  animation: sheet-in 280ms var(--ease-out) both;
+}
+
+.sheet::backdrop {
+  background: rgb(8 16 12 / 0.55);
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+.sheet__body {
+  display: grid;
+  gap: 18px;
+  padding: 22px var(--gutter) calc(var(--safe-bottom) + 18px);
+}
+
+.sheet__title {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.sheet__text {
+  margin: 0;
+}
+
+.stepper {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr 3.5rem;
+  align-items: center;
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 2px var(--line);
+}
+
+.stepper button {
+  height: 3.5rem;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.stepper button:disabled {
+  color: var(--line);
+}
+
+.stepper output {
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.sheet__actions {
+  display: grid;
+  gap: 10px;
+}
+
+/* ─── Bienvenida y familia ────────────────────────────────────────────── */
+
+.welcome {
+  min-height: 100dvh;
+  padding: calc(var(--safe-top) + 10vh) var(--gutter) calc(var(--safe-bottom) + 24px);
+  background: var(--board);
+  color: var(--on-board);
+}
+
+.welcome__inner {
+  display: grid;
+  gap: 28px;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.welcome__brand {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+}
+
+.welcome__brand h1 {
+  margin: 8px 0 0;
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.welcome__brand p {
+  margin: 0;
+  color: var(--on-board-muted);
+  font-size: 1.125rem;
+}
+
+.welcome form,
+.welcome .stack {
+  display: grid;
+  gap: 14px;
+}
+
+.welcome .btn {
+  background: var(--on-board);
+  color: var(--board);
+}
+
+.welcome .btn--outline {
+  background: transparent;
+  color: var(--on-board);
+  box-shadow: inset 0 0 0 2px var(--on-board-muted);
+}
+
+.welcome .btn--quiet {
+  background: transparent;
+  color: var(--on-board-muted);
+}
+
+.welcome .input {
+  border-color: transparent;
+  background: var(--on-board);
+  color: #13201a;
+  caret-color: #13201a;
+}
+
+.welcome .input::placeholder {
+  color: #4f6155;
+}
+
+.welcome .input:focus-visible {
+  border-color: var(--chalk-yellow);
+}
+
+.welcome label,
+.welcome .lead {
+  color: var(--on-board);
+  font-weight: 700;
+}
+
+.welcome label {
+  margin-bottom: -6px;
+}
+
+.welcome .error {
+  color: #ffb4a9;
+}
+
+.welcome .lead {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.code-input {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.hint {
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--board-deep);
+  color: var(--on-board-muted);
+  font-size: 0.9375rem;
+}
+
+.hint strong {
+  color: var(--on-board);
+}
+
+.centered {
+  display: grid;
+  place-items: center;
+  gap: 16px;
+  min-height: 70dvh;
+  padding: 24px;
+  text-align: center;
+}
+
+.section {
+  margin-top: 24px;
+}
+
+.section h2 {
+  margin: 0 4px 8px;
+  color: var(--ink-muted);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.panel {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--radius);
+  background: var(--row);
+}
+
+.member {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 3rem;
+  padding: 0 14px;
+}
+
+.member + .member {
+  border-top: 1px solid var(--line);
+}
+
+.member__role {
+  margin-left: auto;
+  color: var(--ink-muted);
+  font-size: 0.9375rem;
 }
 
 .invite-code {
@@ -204,38 +893,37 @@ button.danger {
   text-align: center;
 }
 
-.banner {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  font-size: 0.9rem;
-}
-
-.banner--offline {
-  background: var(--warn-bg);
-  color: var(--warn-text);
-}
-
-.banner--update {
+/* Aviso de versión nueva: arriba, para no tapar el campo de añadir. */
+.update {
   position: fixed;
-  left: 12px;
-  right: 12px;
-  bottom: calc(12px + var(--safe-bottom));
-  background: var(--surface);
-  border-radius: 16px;
-  box-shadow: 0 6px 24px rgb(0 0 0 / 0.18);
+  top: calc(var(--safe-top) + 8px);
+  left: var(--gutter);
+  right: var(--gutter);
+  z-index: 30;
+  display: grid;
+  gap: 10px;
+  max-width: 608px;
+  margin: 0 auto;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--row);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.25);
 }
 
-.banner--update span {
-  flex: 1;
+.update__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+    transition-duration: 1ms;
   }
 }

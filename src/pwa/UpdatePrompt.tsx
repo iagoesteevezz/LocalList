@@ -11,14 +11,16 @@ export function UpdatePrompt() {
   if (!needRefresh) return null;
 
   return (
-    <div className="banner banner--update" role="status">
-      <span>Hay una versión nueva.</span>
-      <button type="button" onClick={() => updateServiceWorker(true)}>
-        Actualizar
-      </button>
-      <button type="button" className="ghost" onClick={() => setNeedRefresh(false)}>
-        Luego
-      </button>
+    <div className="update" role="status">
+      <span>Hay una versión nueva de la app.</span>
+      <div className="update__actions">
+        <button type="button" className="btn btn--quiet" onClick={() => setNeedRefresh(false)}>
+          Luego
+        </button>
+        <button type="button" className="btn" onClick={() => void updateServiceWorker(true)}>
+          Actualizar
+        </button>
+      </div>
     </div>
   );
 }
