@@ -64,8 +64,9 @@ Telde, Gran Canaria). Un producto apuntado una vez cae solo en su pasillo.
 
 ## Evidence on Hand
 
-- Lista real de la familia en la V1 (3 productos al 11-nov-2026), respaldada en
-  `backups/` (no versionado).
+- La V1 no tiene datos reales que conservar: sus 3 entradas eran basura (el
+  documento era escribible por cualquiera). La V2 empieza con la lista vacía.
+  Respaldo de lo que había en `backups/` (no versionado).
 - Distribución de 7 pasillos del Mercadona Cruce de Melenara (de la V1).
 - No hay testimonios, métricas ni capturas de usuarios: no inventarlos.
 
