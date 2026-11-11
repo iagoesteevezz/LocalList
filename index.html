@@ -1,33 +1,28 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- viewport-fit=cover: necesario para respetar la "isla" y la barra de inicio del iPhone -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>LocaLisT</title>
-    <!-- Firebase Auth requiere que el dominio esté autorizado en Firebase Console -->
-    <!-- Ir a: Authentication → Settings → Authorized domains → añadir tu dominio -->
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <meta name="description" content="La lista de la compra de la familia, ordenada por pasillos." />
 
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="LocaList Just Logo.png">
+    <meta name="theme-color" content="#2f6b2f" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#14231a" media="(prefers-color-scheme: dark)" />
 
-    <link rel="manifest" href="manifest.json">
-</head>
-<body>
-    <header>
-        <img src="Localist logo-No Bg.png" alt="Logo LocaList" class="logo-header">
-        <h1 class="titulo-super">Mercadona Cruce de Melenara</h1>
-    </header>
+    <!-- iOS: modo app a pantalla completa al instalar desde Safari ("Añadir a pantalla de inicio") -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="LocaLisT" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
-    <div id="mapa-3d-container"></div>
-
-    <main id="supermercado-container">
-    </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
-    
-    <script type="module" src="js/app.js"></script>
-</body>
+    <link rel="icon" href="/LocalList/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/LocalList/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/LocalList/apple-touch-icon-180x180.png" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>LocaLisT necesita JavaScript activado.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

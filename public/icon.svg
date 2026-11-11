@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Icono provisional (Fase 1). Se rediseña en la fase de identidad visual. -->
+  <rect width="512" height="512" rx="112" fill="#2f6b2f"/>
+  <!-- Cesta -->
+  <path d="M120 214h272l-30 166a28 28 0 0 1-27.6 23H177.6A28 28 0 0 1 150 380z" fill="#f6f5f0"/>
+  <path d="M176 214l56-92M336 214l-56-92" stroke="#f6f5f0" stroke-width="28" stroke-linecap="round" fill="none"/>
+  <!-- Check -->
+  <path d="M198 300l40 40 78-82" stroke="#2f6b2f" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
