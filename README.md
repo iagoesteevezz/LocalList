@@ -96,3 +96,11 @@ DESIGN.md            sistema visual ("La pizarra de Vegueta")
   (deepmerge, glob, minimatch). Solo se usa al compilar; no llega al navegador.
 - Las dependencias se instalaron con `npm install --before=<fecha>` y versión
   exacta, para no coger paquetes recién publicados.
+- **El lockfile se genera en Linux**, porque es donde corren la CI y el
+  despliegue. npm coloca algunas dependencias en sitios distintos en Windows y en
+  Linux, y si el lockfile se genera en Windows, `npm ci` falla en GitHub con
+  "package.json and package-lock.json are not in sync". Tras añadir o cambiar
+  dependencias, regenéralo con Docker:
+  ```bash
+  docker run --rm -v "$PWD:/app" -w /app node:24 npm install --ignore-scripts --package-lock-only
+  ```
