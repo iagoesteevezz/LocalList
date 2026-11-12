@@ -23,7 +23,6 @@
   --done-ink: #56685c;
   --line: #cad5cc;
   --mark: #1f3a2d;
-  --strike: #1f3a2d;
 
   --primary: #1f3a2d;
   --on-primary: #f3f1e7;
@@ -69,7 +68,6 @@
     --done-ink: #95a99b;
     --line: #2f4639;
     --mark: #f3f1e7;
-    --strike: #f3f1e7;
     --primary: #f3f1e7;
     --on-primary: #13201a;
     --danger: #ffb4a9;
@@ -487,49 +485,36 @@ button {
   border-radius: 0;
 }
 
-/* Firma: el tachado de tiza. Un trazo dibujado a mano sobre el nombre. */
-.strike {
-  position: absolute;
-  left: -4px;
-  right: -4px;
-  top: 50%;
-  width: calc(100% + 8px);
-  height: 14px;
-  transform: translateY(-50%);
-  overflow: visible;
-  pointer-events: none;
+/* ─── La nota: "Para comprar" arriba y "Lo de siempre" debajo ──────── */
+
+.note-part + .note-part {
+  margin-top: 36px;
 }
 
-.strike path {
-  fill: none;
-  stroke: var(--strike);
-  stroke-width: 2.6;
-  stroke-linecap: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 0;
+.note-part__title {
+  margin: 20px 4px 0;
+  color: var(--ink);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
 }
 
-.strike--drawing path {
-  animation: chalk 360ms var(--ease-out) both;
+.note-part__hint {
+  margin: 6px 4px 0;
+  color: var(--ink-muted);
 }
 
-@keyframes chalk {
-  from {
-    stroke-dashoffset: 1;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
+/* Lo de siempre: el mismo bloque de filas, pero en segundo plano. */
+.note-part--usual {
+  padding-top: 20px;
+  border-top: 2px dashed var(--line);
 }
 
-/* ─── Lo que ya está en el carro ──────────────────────────────────────── */
-
-.cart {
-  margin-top: 28px;
-}
-
-.cart__finish {
-  margin-top: 12px;
+.note-part--usual .note-part__title {
+  margin-top: 0;
+  color: var(--ink-muted);
+  font-size: 1.25rem;
 }
 
 /* ─── Vacío ───────────────────────────────────────────────────────────── */

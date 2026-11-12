@@ -1,4 +1,4 @@
-// Detalles de un producto: cantidad, categoría y quitar.
+// Detalles de un producto: cantidad, categoría y borrar.
 
 import { useId } from 'react';
 import { CATEGORIES, isCategoryId } from '../../domain/categories';
@@ -93,8 +93,9 @@ export function ItemSheet({ item, onClose, onQty, onCategory, onRemove, store }:
               Listo
             </button>
             <button type="button" className="btn btn--danger btn--block" onClick={onRemove}>
-              Quitar de la lista
+              Borrar de la lista
             </button>
+            <p className="muted">Deja de salir también en «Lo de siempre».</p>
           </div>
         </>
       )}

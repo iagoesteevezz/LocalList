@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CATEGORY_IDS, detectCategory } from './categories';
-import { groupByCategory } from './list';
+import { buildNote, inTrip, TRIP_MS } from './list';
+import type { CatalogEntry } from './suggest';
 import { aisleFor, planRoute } from './route';
 import { MERCADONA_MELENARA } from './templates';
 import { productId } from './text';
@@ -59,8 +60,9 @@ describe('planRoute', () => {
     expect(route.sections.map((s) => s.aisle?.id)).toEqual(['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7']);
   });
 
-  it('pendientes por nombre arriba; marcados abajo, en el orden en que se cogieron', () => {
+  it('todo por nombre: lo marcado se queda en su sitio', () => {
     const p1 = route.sections[0]!;
+    expect(p1.items.map((i) => i.name)).toEqual(['Aguacates', 'Calabacín', 'Manzanas', 'Plátanos']);
     expect(p1.pending.map((i) => i.name)).toEqual(['Aguacates', 'Manzanas']);
     expect(p1.done.map((i) => i.name)).toEqual(['Calabacín', 'Plátanos']);
   });
@@ -102,16 +104,40 @@ describe('plantilla Mercadona Melenara', () => {
   });
 });
 
-describe('groupByCategory', () => {
-  it('agrupa pendientes en el orden de categorías y deja lo cogido al final', () => {
-    const { groups, done } = groupByCategory([
+describe('buildNote y inTrip', () => {
+  const NOW = 10 * TRIP_MS;
+  const catalog: CatalogEntry[] = [
+    { id: 'leche', name: 'Leche', category: detectCategory('Leche'), uses: 3 },
+    { id: 'gofio', name: 'Gofio', category: detectCategory('Gofio'), uses: 1 },
+  ];
+  const note = buildNote(
+    [
       item('Lejía'),
-      item('Tomates'),
-      item('Leche', { done: true }),
+      item('Tomates', { done: true, doneAt: NOW - 1000 }), // marcado en esta compra
       item('Cebollas'),
-    ]);
-    expect(groups.map((g) => g.category.id)).toEqual(['frutas_verduras', 'limpieza']);
-    expect(groups[0]!.items.map((i) => i.name)).toEqual(['Cebollas', 'Tomates']);
-    expect(done.map((i) => i.name)).toEqual(['Leche']);
+      item('Leche', { done: true, doneAt: NOW - TRIP_MS - 1 }), // de otra compra
+    ],
+    catalog,
+  );
+  const names = (groups: typeof note.needed) => groups.flatMap((g) => g.items.map((i) => i.name));
+
+  it('para comprar: solo lo pendiente, por secciones y nombre', () => {
+    expect(note.needed.map((g) => g.category.id)).toEqual(['frutas_verduras', 'limpieza']);
+    expect(names(note.needed)).toEqual(['Cebollas', 'Lejía']);
+  });
+
+  it('lo de siempre: todo lo marcado y el catálogo, sin repetir', () => {
+    expect(names(note.usual).sort()).toEqual(['Gofio', 'Leche', 'Tomates']);
+    expect([...note.onlyInCatalog]).toEqual(['gofio']);
+  });
+
+  it('lo del catálogo se muestra como "ya lo tenemos"', () => {
+    const gofio = note.usual.flatMap((g) => g.items).find((i) => i.id === 'gofio')!;
+    expect(gofio.done).toBe(true);
+  });
+
+  it('inTrip: sin hora de marcado, ya no es de esta compra', () => {
+    expect(inTrip(item('Pan', { done: true, doneAt: null }), NOW)).toBe(false);
+    expect(inTrip(item('Pan'), NOW)).toBe(true);
   });
 });

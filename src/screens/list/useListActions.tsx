@@ -1,9 +1,18 @@
 // Acciones de la lista compartidas por "Lista" (en casa) y "Comprar" (en el súper):
-// apuntar (con repetidos y erratas), detalles de un producto, quitar y terminar compra.
+// apuntar (con repetidos y erratas), subir algo de "Lo de siempre", detalles y borrar.
 // Devuelve también las hojas (detalles y "¿querías decir?") ya montadas.
 
 import { useState } from 'react';
-import { addItem, removeItem, removeItems, restoreItems, setCategory, setDone, setQty } from '../../data/items';
+import {
+  addItem,
+  forgetItem,
+  restoreForgotten,
+  restoreItems,
+  saveUsual,
+  setCategory,
+  setDone,
+  setQty,
+} from '../../data/items';
 import { setOverride } from '../../data/stores';
 import { decideAdd, type NewItem } from '../../domain/add';
 import { aisleFor } from '../../domain/route';
@@ -27,7 +36,30 @@ export function useListActions(
 
   function bringBack(existing: Item) {
     setDone(familyId, existing.id, false);
-    toast({ message: `${existing.name} vuelve a la lista` });
+    toast({ message: `Apuntado: ${existing.name}` });
+  }
+
+  /**
+   * Sube a "Para comprar" un producto de "Lo de siempre" (como desmarcarlo en la nota).
+   * `onlyInCatalog`: aún no tiene documento en la lista y hay que crearlo.
+   */
+  function need(item: Item, onlyInCatalog: boolean) {
+    if (onlyInCatalog) addItem(familyId, item);
+    else setDone(familyId, item.id, false);
+    navigator.vibrate?.(10);
+    toast({
+      message: `Apuntado arriba: ${item.name}`,
+      action: {
+        label: 'Deshacer',
+        run: () => (onlyInCatalog ? saveUsual(familyId, item) : restoreItems(familyId, [item])),
+      },
+    });
+  }
+
+  /** Detalles de un producto de "Lo de siempre" que aún no tiene documento. */
+  function openUsual(item: Item, onlyInCatalog: boolean) {
+    if (onlyInCatalog) saveUsual(familyId, item);
+    setOpenId(item.id);
   }
 
   function handleAdd(text: string): boolean {
@@ -55,25 +87,14 @@ export function useListActions(
     }
   }
 
+  /** Borra el producto del todo (también de "Lo de siempre"), con Deshacer. */
   function remove(item: Item) {
     setOpenId(null);
-    removeItem(familyId, item.id);
+    const uses = catalog.find((e) => e.id === item.id)?.uses ?? 1;
+    forgetItem(familyId, item.id);
     toast({
-      message: `Quitado: ${item.name}`,
-      action: { label: 'Deshacer', run: () => restoreItems(familyId, [item]) },
-    });
-  }
-
-  /** Quita de la lista todo lo que está en el carro, con Deshacer. */
-  function finishShopping(bought: readonly Item[]) {
-    if (bought.length === 0) return;
-    removeItems(
-      familyId,
-      bought.map((i) => i.id),
-    );
-    toast({
-      message: bought.length === 1 ? 'Quitado 1 producto del carro' : `Quitados ${bought.length} productos del carro`,
-      action: { label: 'Deshacer', run: () => restoreItems(familyId, bought) },
+      message: `Borrado: ${item.name}`,
+      action: { label: 'Deshacer', run: () => restoreForgotten(familyId, item, uses) },
     });
   }
 
@@ -135,5 +156,5 @@ export function useListActions(
     </>
   );
 
-  return { handleAdd, finishShopping, openItem: setOpenId, sheets };
+  return { handleAdd, need, openUsual, openItem: setOpenId, sheets };
 }

@@ -3,10 +3,12 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { setDone, useItems } from '../../data/items';
 import type { Family } from '../../data/useSession';
+import { inTrip } from '../../domain/list';
 import { planRoute } from '../../domain/route';
 import type { CatalogEntry } from '../../domain/suggest';
 import type { Store } from '../../domain/types';
 import { navigate } from '../../lib/useHashRoute';
+import { useNow } from '../../lib/useNow';
 import { useOnlineStatus } from '../../lib/useOnlineStatus';
 import { getLastStore, setLastStore } from '../../lib/storage';
 import { useDockHeight, useHeightVar } from '../../lib/useViewportVars';
@@ -108,6 +110,7 @@ function Shopping({ family, stores, catalog, toastView, tabBar, store }: Props &
   const fid = family.id;
   const { items, loaded } = useItems(fid);
   const online = useOnlineStatus();
+  const now = useNow();
   const actions = useListActions(fid, items, catalog, store);
   const [picking, setPicking] = useState(false);
   const header = useRef<HTMLElement>(null);
@@ -118,9 +121,11 @@ function Shopping({ family, stores, catalog, toastView, tabBar, store }: Props &
   // Recordar el súper aunque se haya llegado por "último usado".
   useEffect(() => setLastStore(store.id), [store.id]);
 
-  const route = useMemo(() => planRoute(items, store), [items, store]);
+  // Lo que hace falta y lo que se ha cogido en esta compra (que se queda con ✓).
+  // Lo de compras anteriores no estorba aquí: está en "Lo de siempre" de la Lista.
+  const trip = useMemo(() => items.filter((i) => inTrip(i, now)), [items, now]);
+  const route = useMemo(() => planRoute(trip, store), [trip, store]);
   const pendingIds = useMemo(() => new Set(items.filter((i) => !i.done).map((i) => i.id)), [items]);
-  const bought = useMemo(() => items.filter((i) => i.done), [items]);
   const visible = route.sections.filter((s) => s.pending.length + s.done.length > 0);
   const unassigned = route.unassigned;
   const unassignedCount = unassigned.pending.length + unassigned.done.length;
@@ -156,7 +161,7 @@ function Shopping({ family, stores, catalog, toastView, tabBar, store }: Props &
               <>
                 <strong className="tabular">{route.pendingCount}</strong> por coger
               </>
-            ) : items.length > 0 ? (
+            ) : trip.length > 0 ? (
               'Todo en el carro'
             ) : (
               'No hay nada apuntado'
@@ -175,18 +180,23 @@ function Shopping({ family, stores, catalog, toastView, tabBar, store }: Props &
       </header>
 
       <main className="content">
-        {loaded && items.length === 0 && (
+        {loaded && trip.length > route.pendingCount && (
+          <p className="muted section__hint">
+            Lo que marques se queda en su sitio con ✓. A las pocas horas pasa a «Lo de siempre», en la Lista.
+          </p>
+        )}
+        {loaded && trip.length === 0 && (
           <div className="empty">
             <CartIcon className="icon icon--hero" />
             <h2>No hay nada apuntado</h2>
-            <p>Si te acuerdas de algo, apúntalo abajo.</p>
+            <p>Si te acuerdas de algo, apúntalo abajo o súbelo desde «Lo de siempre» en la Lista.</p>
           </div>
         )}
 
-        {loaded && items.length > 0 && route.pendingCount === 0 && (
+        {loaded && trip.length > 0 && route.pendingCount === 0 && (
           <div className="all-done" role="status">
             <CheckIcon className="icon icon--hero" />
-            <p>Todo en el carro. Cuando pagues, pulsa «Terminar compra».</p>
+            <p>Todo en el carro. Lo comprado sigue en «Lo de siempre» para la próxima vez.</p>
           </div>
         )}
 
@@ -205,8 +215,7 @@ function Shopping({ family, stores, catalog, toastView, tabBar, store }: Props &
                 </span>
               </h2>
               <ul className="rows">
-                {section.pending.map((i) => row(i))}
-                {section.done.map((i) => row(i))}
+                {section.items.map((i) => row(i))}
               </ul>
             </section>
           );
@@ -220,22 +229,11 @@ function Shopping({ family, stores, catalog, toastView, tabBar, store }: Props &
             </h2>
             <p className="muted section__hint">Toca ⋯ y elige en qué pasillo está. Se recordará para la próxima vez.</p>
             <ul className="rows">
-              {unassigned.pending.map((i) => row(i, true))}
-              {unassigned.done.map((i) => row(i, true))}
+              {unassigned.items.map((i) => row(i, true))}
             </ul>
           </section>
         )}
 
-        {bought.length > 0 && (
-          <button
-            type="button"
-            className={route.pendingCount === 0 ? 'btn btn--block cart__finish' : 'btn btn--outline btn--block cart__finish'}
-            onClick={() => actions.finishShopping(bought)}
-          >
-            <CartIcon />
-            Terminar compra ({bought.length})
-          </button>
-        )}
       </main>
 
       <div className="dock" ref={dock}>

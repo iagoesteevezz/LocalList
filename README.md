@@ -57,7 +57,7 @@ src/
   domain/            lógica pura (texto, categorías, duplicados, ruta, súper, invitaciones) + tests
   data/              Firebase: inicialización, sesión, familia, lista, súpers
   screens/           pantallas (list, shop, stores, bienvenida, familia)
-  ui/                piezas de interfaz (iconos, hojas, avisos, tachado)
+  ui/                piezas de interfaz (iconos, hojas, avisos)
   vendor-stubs/      sustitutos de dependencias que no usamos
   lib/               utilidades y hooks sin UI
   pwa/               registro del service worker y aviso de actualización

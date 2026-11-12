@@ -19,9 +19,12 @@ web
 
 ## Product Purpose
 
-Lista de la compra compartida por la familia, en tiempo real. En casa se apunta
-lo que falta; en el súper, la app ordena la lista según el recorrido de ese
-supermercado para no dar vueltas ni olvidar nada.
+Lista de la compra compartida por la familia, en tiempo real. Sustituye a la
+nota compartida del móvil que usaba la familia: en ella estaban todos los
+productos de siempre; se desmarcaba lo que hacía falta y, en el súper, se volvía
+a marcar al cogerlo. Nada se borraba. La app conserva ese modelo: arriba «Para
+comprar», debajo «Lo de siempre» (con ✓). En el súper ordena lo que hace falta
+según el recorrido de ese supermercado para no dar vueltas ni olvidar nada.
 
 Éxito: la madre completa una compra sin ayuda, sin olvidar productos y sin
 pelearse con la app.
@@ -37,7 +40,8 @@ Telde, Gran Canaria). Un producto apuntado una vez cae solo en su pasillo.
 - En casa: alguien se acuerda de algo y lo apunta en segundos.
 - En el súper: mala cobertura (zonas sin señal), luz de fluorescentes, una sola
   mano libre, prisas, interrupciones. Marca lo que mete en el carro; lo marcado
-  no desaparece, baja al final de su pasillo.
+  no desaparece ni se mueve: se queda en su sitio con ✓ y en gris (sin tachar).
+  En la Lista, lo marcado pasa a «Lo de siempre»; en Comprar se queda unas horas a la vista.
 - Varias personas pueden tocar la lista a la vez (uno añade desde casa mientras
   otra compra).
 - Vocabulario canario en los productos (papas, millo, gofio, mojo, cotufas).

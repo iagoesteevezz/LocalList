@@ -7,7 +7,6 @@
 import {
   Timestamp,
   collection,
-  deleteDoc,
   doc,
   increment,
   onSnapshot,
@@ -147,14 +146,40 @@ export function restoreItems(familyId: string, items: readonly Item[]) {
   fire(batch.commit());
 }
 
-export function removeItem(familyId: string, id: string) {
-  fire(deleteDoc(itemRef(familyId, id)));
+/**
+ * Guarda en la lista un producto que solo estaba en el catálogo, como "ya lo
+ * tenemos" (marcado, sin hora). Hace falta para poder cambiarle la cantidad o la sección.
+ */
+export function saveUsual(familyId: string, item: Item) {
+  fire(
+    setDoc(itemRef(familyId, item.id), {
+      name: item.name,
+      qty: item.qty,
+      done: true,
+      category: item.category,
+      doneAt: null,
+      ...stamp(),
+    }),
+  );
 }
 
-/** "Terminar compra": quita de la lista todo lo que ya está en el carro. */
-export function removeItems(familyId: string, ids: readonly string[]) {
-  // Un batch admite 500 operaciones; una lista familiar no llega ni de lejos.
+/** Borra el producto de la lista y del catálogo: deja de salir en "Lo de siempre". */
+export function forgetItem(familyId: string, id: string) {
   const batch = writeBatch(db);
-  for (const id of ids) batch.delete(itemRef(familyId, id));
+  batch.delete(itemRef(familyId, id));
+  batch.delete(catalogRef(familyId, id));
   fire(batch.commit());
+}
+
+/** Deshace forgetItem: vuelve el producto y su entrada del catálogo. */
+export function restoreForgotten(familyId: string, item: Item, uses: number) {
+  restoreItems(familyId, [item]);
+  fire(
+    setDoc(catalogRef(familyId, item.id), {
+      name: item.name,
+      category: item.category,
+      uses: Math.max(0, Math.round(uses)),
+      lastUsedAt: serverTimestamp(),
+    }),
+  );
 }

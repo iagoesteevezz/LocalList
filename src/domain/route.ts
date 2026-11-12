@@ -5,6 +5,8 @@ import type { Aisle, Item, Store } from './types';
 export interface RouteSection {
   /** null = productos que no encajan en ningún pasillo de este súper. */
   aisle: Aisle | null;
+  /** Todo el pasillo por nombre: marcar no cambia la fila de sitio. */
+  items: Item[];
   pending: Item[];
   done: Item[];
 }
@@ -39,14 +41,14 @@ export function aisleFor(item: Item, store: Store): Aisle | null {
 
 const collator = new Intl.Collator('es', { sensitivity: 'base' });
 const byName = (a: Item, b: Item) => collator.compare(a.name, b.name);
-const byDoneAt = (a: Item, b: Item) => (a.doneAt ?? 0) - (b.doneAt ?? 0) || byName(a, b);
 
 function section(aisle: Aisle | null, items: Item[]): RouteSection {
+  const sorted = [...items].sort(byName);
   return {
     aisle,
-    pending: items.filter((i) => !i.done).sort(byName),
-    // Lo marcado baja al final, en el orden en que se fue cogiendo.
-    done: items.filter((i) => i.done).sort(byDoneAt),
+    items: sorted,
+    pending: sorted.filter((i) => !i.done),
+    done: sorted.filter((i) => i.done),
   };
 }
 

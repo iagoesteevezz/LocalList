@@ -117,7 +117,7 @@ components:
 
 **Creative North Star: "La pizarra de Vegueta"**
 
-La lista es la pizarra de un puesto del Mercado de Vegueta: un tablero verde, palabras en tiza y, cuando algo se coge, un trazo a mano que lo tacha. El mundo entra en la app por cuatro sitios y solo por ellos: la paleta (pizarra y tiza), una sola tipografía redondeada de cartel, la densidad generosa de un cartel que se lee de lejos, y un gesto propio, el tachado de tiza. La organización de las pantallas, la navegación y los controles son los de una app de móvil corriente; nadie debe tener que aprender nada.
+La lista es la pizarra de un puesto del Mercado de Vegueta: un tablero verde, palabras en tiza y, cuando algo se coge, una marca de ✓. El mundo entra en la app por tres sitios y solo por ellos: la paleta (pizarra y tiza), una sola tipografía redondeada de cartel y la densidad generosa de un cartel que se lee de lejos. La organización de las pantallas, la navegación y los controles son los de una app de móvil corriente; nadie debe tener que aprender nada.
 
 Está pensada para una persona de pie en un pasillo, con el carro en una mano, gafas de cerca y luz de fluorescentes. Por eso el texto es grande por defecto, cada objetivo táctil mide al menos 48 px, lo importante vive en el tercio inferior (al alcance del pulgar) y el estado de cada producto se lee por su marca, no por su color.
 
@@ -127,7 +127,6 @@ En claro, la pizarra es el marco (cabecera y pestañas) y las filas son tinta so
 - Pizarra verde como marco; tiza como texto sobre ella; un único amarillo tiza para "aquí, ahora".
 - Una tipografía redondeada para todo; la jerarquía sale del tamaño y el peso.
 - Filas de 56 px, letra base de ~19 px, objetivos de 48 px como mínimo.
-- El tachado de tiza es la firma: se dibuja al coger un producto.
 - El recorrido del súper se dibuja como paradas de tiza unidas por una línea.
 
 ## Colors
@@ -154,7 +153,7 @@ Las variantes `*-night` son el mismo papel de cada color en el tema oscuro.
 ### Named Rules
 **The One Yellow Rule.** El amarillo tiza solo marca lo que toca ahora (siguiente pasillo, lo pendiente, la pestaña activa, la acción del aviso). Si algo amarillo no es "aquí, ahora", sobra.
 
-**The Mark Over Colour Rule.** El estado nunca depende solo del color: aro vacío = pendiente; aro relleno con ✓ y tachado = en el carro; aro discontinuo = sin pasillo en este súper.
+**The Mark Over Colour Rule.** El estado nunca depende solo del color: aro vacío = pendiente; aro relleno con ✓ y nombre en gris = cogido o «lo de siempre» (nunca se tacha); aro discontinuo = sin pasillo en este súper.
 
 ## Typography
 
@@ -214,14 +213,14 @@ Esquinas suaves y constantes: 14 px en botones, campos, bloques de filas y panel
 
 ### List rows
 - **Style:** fila de 56 px dentro de un bloque de papel; toda la fila (marca + nombre) es un único botón que mete el producto en el carro; a la derecha, la cantidad como pastilla (solo si es más de 1) y un botón ⋯ de 48 px para los detalles.
-- **States:** pendiente (aro vacío), en el carro (aro relleno con ✓, nombre en tinta tachada con el trazo de tiza), sin pasillo (aro discontinuo).
+- **States:** pendiente (aro vacío), marcado (aro relleno con ✓, nombre en tinta tachada, sin trazo; la fila no se mueve), sin pasillo (aro discontinuo).
 
 ### Navigation
 - **Tab bar:** pizarra, tres pestañas (Lista, Comprar, Familia) con icono propio y etiqueta; la activa en tiza con el icono amarillo. Centrada y limitada a 12rem por pestaña en pantallas anchas; se oculta mientras el teclado está abierto.
 - **Sheets:** hojas inferiores sobre `<dialog>` modal para detalles, confirmaciones y elecciones; se cierran tocando fuera o con Escape.
 
-### Chalk strike (signature)
-Un trazo SVG a mano, del color de la tinta en claro y de la tiza en oscuro, que cruza el nombre de lado a lado. Se dibuja en 360 ms al coger el producto (con un toque de vibración) y después queda fijo; con movimiento reducido aparece sin animar.
+### Para comprar / Lo de siempre
+La Lista es la nota de siempre de la familia. Arriba, «Para comprar» (título en tinta, 1.5rem): lo que hace falta (aro vacío). Debajo, tras una raya discontinua, «Lo de siempre» (título más pequeño en tinta suave): todos los demás productos con ✓; tocar uno lo sube arriba con un aviso y «Deshacer». No hay tachado: el estado es la marca más el gris.
 
 ### Route strip (signature)
 En el modo compra, bajo el nombre del súper: los pasillos como paradas circulares de 2.75rem unidas por una línea de tiza. Pendiente = aro de tiza con su número; siguiente = relleno amarillo tiza; hecho = relleno tiza gastada con ✓; sin nada = aro discontinuo apagado; sin pasillo = aro discontinuo amarillo con interrogación. Tocar una parada lleva a su pasillo; la siguiente se mantiene siempre a la vista.
@@ -237,7 +236,7 @@ En el modo compra, bajo el nombre del súper: los pasillos como paradas circular
 - **Do** dibujar los iconos como SVG de 24 px con trazo de 2 px y extremos redondeados.
 
 ### Don't:
-- **Don't** usar texturas de tiza, letras manuscritas ni marcos de madera: el mundo está en la paleta y el gesto, no en el disfraz.
+- **Don't** usar texturas de tiza, letras manuscritas ni marcos de madera: el mundo está en la paleta, no en el disfraz.
 - **Don't** usar emojis ni caracteres de texto como iconos.
 - **Don't** usar un segundo acento de color ni el amarillo como decoración.
 - **Don't** usar ventanas de `alert`/`confirm`/`prompt` del navegador: las decisiones van en hojas inferiores.
