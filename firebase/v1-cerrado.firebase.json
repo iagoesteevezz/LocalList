@@ -1,0 +1,5 @@
+{
+  "firestore": {
+    "rules": "v1-cerrado.rules"
+  }
+}

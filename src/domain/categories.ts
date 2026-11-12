@@ -119,12 +119,12 @@ const DICTIONARY: Record<Exclude<CategoryId, 'otros'>, string[]> = {
     'arroz', 'lenteja', 'garbanzo', 'alubia', 'judía', 'legumbre', 'harina', 'azúcar',
     'sal', 'aceite', 'aceite de oliva', 'vinagre', 'levadura', 'conserva', 'lata',
     'atún', 'atún en lata', 'sardinas en lata', 'maíz', 'millo en lata', 'cuscús',
-    'quinoa', 'pan rallado', 'bicarbonato', 'edulcorante',
+    'quinoa', 'pan rallado', 'bicarbonato', 'edulcorante', 'stevia', 'sacarina',
   ],
   pasta_salsas: [
     'pasta', 'macarrón', 'espagueti', 'spaghetti', 'fideo', 'tallarín', 'lasaña placas',
     'placas de lasaña', 'canelones placas', 'salsa', 'tomate frito', 'tomate triturado',
-    'mayonesa', 'ketchup', 'kétchup', 'mostaza', 'mojo', 'mojo picón', 'alioli',
+    'mayonesa', 'ketchup', 'kétchup', 'mostaza', 'mojo', 'mojo picón', 'alioli', 'ali oli',
     'pimienta', 'orégano', 'pimentón', 'comino', 'especia', 'caldo', 'pastilla de caldo',
     'avecrem', 'sopa', 'puré', 'crema de verduras',
   ],
@@ -140,7 +140,7 @@ const DICTIONARY: Record<Exclude<CategoryId, 'otros'>, string[]> = {
     'verdura congelada', 'gamba congelada',
   ],
   precocinados: [
-    'pizza', 'lasaña', 'canelón', 'empanadilla', 'empanada', 'tortilla de patata',
+    'pizza', 'lasaña', 'canelón', 'empanadilla', 'empanada', 'tortilla de patata', 'kebab',
     'tortilla', 'gazpacho', 'salmorejo', 'hummus', 'surimi', 'gula', 'precocinado',
     'plato preparado', 'sándwich', 'ensalada preparada',
   ],
@@ -158,6 +158,8 @@ const DICTIONARY: Record<Exclude<CategoryId, 'otros'>, string[]> = {
     'papel de cocina', 'rollo de cocina', 'servilleta', 'pañuelo', 'papel de aluminio',
     'papel de plata', 'film transparente', 'papel de horno', 'ambientador', 'insecticida',
     'pila', 'bombilla', 'vela',
+    'fairy', 'lavaplatos', 'somat', 'clinex', 'kleenex', 'perfumador', 'perfumador de lavadora',
+    'mechero', 'cerilla', 'antimosquito', 'anti mosquito',
   ],
   higiene: [
     'champú', 'acondicionador', 'gel', 'gel de ducha', 'jabón', 'jabón de manos',
@@ -167,10 +169,13 @@ const DICTIONARY: Record<Exclude<CategoryId, 'otros'>, string[]> = {
     'espuma de afeitar', 'cuchilla', 'maquinilla', 'compresa', 'tampón',
     'salvaslip', 'toallita', 'pañal', 'algodón', 'bastoncillo', 'tirita', 'laca',
     'gomina', 'mascarilla',
+    'disco desmaquillador', 'desmaquillante', 'agua micelar', 'alcohol', 'alcohol 70', 'sérum',
+    'serum', 'gota para los ojo', 'gota hidratante', 'colirio', 'salva slip', 'vitamina',
+    'agua oxigenada', 'tinte', 'pinza',
   ],
   mascotas: [
     'pienso', 'comida de perro', 'comida de gato', 'comida para perro',
-    'comida para gato', 'arena de gato', 'arena para gato', 'snack de perro', 'lata de gato',
+    'comida para gato', 'arena de gato', 'arena para gato', 'snack de perro', 'lata de gato', 'friskies', 'friskis',
   ],
 };
 

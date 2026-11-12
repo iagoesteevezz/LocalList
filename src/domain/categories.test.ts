@@ -54,6 +54,29 @@ describe('detectCategory', () => {
     expect(detectCategory('Clipper de fresa')).toBe('bebidas');
   });
 
+  // Productos reales de la familia que la primera versión del diccionario no conocía.
+  it.each([
+    ['Fairy', 'limpieza'],
+    ['Somát lavaplatos', 'limpieza'],
+    ['Clinex', 'limpieza'],
+    ['Perfumador lavadora', 'limpieza'],
+    ['Mecheros', 'limpieza'],
+    ['Anti mosquitos caja pastillas', 'limpieza'],
+    ['Ali Oli', 'pasta_salsas'],
+    ['Stevia', 'despensa'],
+    ['Kebab', 'precocinados'],
+    ['Friskis Gelín', 'mascotas'],
+    ['Salva slip', 'higiene'],
+    ['Discos desmaquilladores', 'higiene'],
+    ['Alcohol 70 spray', 'higiene'],
+    ['Sérum Repair Plex pelo', 'higiene'],
+    ['Gotas hidratantes ojos', 'higiene'],
+    ['Vitamina C', 'higiene'],
+    ['Agua micelar', 'higiene'],
+  ])('vocabulario de casa: %s → %s', (name, expected) => {
+    expect(detectCategory(name)).toBe(expected);
+  });
+
   it('no inventa: lo desconocido va a "otros"', () => {
     expect(detectCategory('Regalo cumpleaños')).toBe('otros');
     expect(detectCategory('')).toBe('otros');

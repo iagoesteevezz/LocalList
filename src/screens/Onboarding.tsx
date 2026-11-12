@@ -45,9 +45,11 @@ export function Onboarding({ initialCode, onDone }: Props) {
   );
 }
 
+const OFFLINE = 'No hay conexión. Inténtalo cuando tengas cobertura.';
+
 function errorMessage(error: unknown): string {
   console.error(error);
-  if (!navigator.onLine) return 'No hay conexión. Inténtalo cuando tengas cobertura.';
+  if (!navigator.onLine) return OFFLINE;
   return 'Algo ha fallado. Inténtalo otra vez.';
 }
 
@@ -61,6 +63,11 @@ function CreateForm({ onBack, onDone }: { onBack: () => void; onDone: () => void
 
   async function submit(e: SubmitEvent) {
     e.preventDefault();
+    // Crear necesita al servidor: sin red, la escritura no terminaría nunca.
+    if (!navigator.onLine) {
+      setError(OFFLINE);
+      return;
+    }
     setBusy(true);
     setError('');
     try {
@@ -161,6 +168,10 @@ function JoinForm({
   async function join(e: SubmitEvent) {
     e.preventDefault();
     if (!invite) return;
+    if (!navigator.onLine) {
+      setError(OFFLINE);
+      return;
+    }
     setBusy(true);
     setError('');
     try {

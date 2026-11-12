@@ -81,8 +81,11 @@ export function useSession(): Session {
         // vería como miembros y lo denegaría. Esperamos a la confirmación.
         if (snap.metadata.hasPendingWrites) return;
         if (snap.exists()) setFamilyId(snap.get('familyId') as string);
-        // Sin datos en caché y sin servidor: esperar en vez de decir "no tienes familia".
-        else if (!snap.metadata.fromCache) setFamilyId(null);
+        // Sin datos en caché: si el servidor contesta, no tiene familia.
+        // Si no hay red, tampoco consta familia en este móvil: se muestra la
+        // bienvenida (antes se quedaba en "Abriendo…" para siempre). Si al
+        // volver la red el servidor dice otra cosa, este listener se actualiza solo.
+        else if (!snap.metadata.fromCache || !navigator.onLine) setFamilyId(null);
       },
       (error: FirestoreError) => {
         setAuthError(error.message);
