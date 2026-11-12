@@ -20,7 +20,9 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci
+      # Sin scripts de instalación, igual que en local (npm 12 los bloquea):
+      # ninguno hace falta y así ningún paquete ejecuta código al instalarse.
+      - run: npm ci --ignore-scripts
       - run: npm run check
 
   rules:
@@ -36,5 +38,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - run: npm ci
+      # Sin scripts de instalación, igual que en local (npm 12 los bloquea):
+      # ninguno hace falta y así ningún paquete ejecuta código al instalarse.
+      - run: npm ci --ignore-scripts
       - run: npm run test:rules
